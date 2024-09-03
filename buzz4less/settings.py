@@ -21,7 +21,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = "true"
 
-ALLOWED_HOSTS = ['https://buzz4less.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['buzz4less.onrender.com', 'localhost', '127.0.0.1']
 
 # Application definition
 
@@ -47,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'buzz4less.urls'
@@ -132,6 +133,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = 'pk_live_51PonNDCDCOrfP3WnPIiJAlJRL8CBQNVJVHGjtA8c3IIq1skvkkYlS3QXgeHiprkM4naTpR4xtxT8WW6xNhaWQAvb005Z0vKVjk'
