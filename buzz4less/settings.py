@@ -3,6 +3,7 @@ import os
 from django.contrib.messages import constants as messages
 import ssl
 import certifi
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,10 +15,11 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8$@5^1++h3^b_5wu&omho*1%)l!rmpn%r6o0x-&8p4x7z08!bk'
+SECRET_KEY = os.getenv("SECRET_KEY")
+# SECRET_KEY = 'django-insecure-8$@5^1++h3^b_5wu&omho*1%)l!rmpn%r6o0x-&8p4x7z08!bk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").lower() == "True"
 
 ALLOWED_HOSTS = []
 
@@ -80,6 +82,10 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+database_url = os.getenv("DATABASE_URL")
+DATABASES["default"] = dj_database_url.parse(database_url)
+# postgresql://buzz4lessdb_user:rOgzRBopY0F0MpJzuKbvhXArdaG4L2hs@dpg-crbekkt6l47c73d4qi00-a.oregon-postgres.render.com/buzz4lessdb
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
