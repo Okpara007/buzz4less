@@ -25,8 +25,8 @@ def generate_referral_code():
 def signup(request):
     if request.method == 'POST':
         # Collect data from the form
-        first_name = request.POST['first_name']
-        last_name = request.POST['last_name']
+        full_name = request.POST['full_name']
+        # last_name = request.POST['last_name']
         username = request.POST['username']
         email = request.POST['email']
         password = request.POST['password']
@@ -44,7 +44,7 @@ def signup(request):
             return JsonResponse({'error': 'Email is already registered.'}, status=400)
 
         # Create the user
-        user = User.objects.create_user(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
+        user = User.objects.create_user(username=username, password=password, email=email, full_name=full_name)
 
         # Handle referral logic
         if referral_code:
