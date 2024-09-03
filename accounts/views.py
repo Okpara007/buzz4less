@@ -25,13 +25,15 @@ def generate_referral_code():
 def signup(request):
     if request.method == 'POST':
         # Collect data from the form
-        first_name = request.POST['first_name']
-        last_name = request.POST['last_name']
+        full_name = request.POST['full_name']
         username = request.POST['username']
         email = request.POST['email']
         password = request.POST['password']
         password2 = request.POST['password2']
         referral_code = request.POST.get('referral_code', None)
+
+        # Split full name into first name and last name
+        first_name, last_name = full_name.split(' ', 1) if ' ' in full_name else (full_name, '')
 
         # Validate the form data
         if password != password2:
