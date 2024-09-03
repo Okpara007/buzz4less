@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %} | Referral  {% endblock %} 
+{% block content %}
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #fff;
+        margin: 0;
+        padding: 0;
+    }
+    .referral-section {
+        background-color: #fff5e1;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin: 20px auto;
+        max-width: 900px;
+    }
+    .referral-link-section {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .referral-link-section input {
+        width: 100%;
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+    .referral-link-section .btn {
+        border-radius: 5px;
+        margin: 5px 0;
+    }
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .card img {
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+    .social-share-icons i {
+        font-size: 1.5rem;
+        margin: 0 10px;
+    }
+</style>
+<div class="container">
+    <div class="referral-section text-center">
+        <h1 class="mb-4">Refer and Earn!</h1>
+        <p>Refer a new user to sign up using your unique referral link and earn 40% of the value of any service they purchase.</p>
+        <div class="referral-link-section row">
+            <div class="col-12 col-md-9">
+                <input type="text" id="referralLink" value="{{ referral_link }}" readonly>
+            </div>
+            <div class="col-12 col-md-3 text-md-start text-center">
+                <button class="btn btn-primary w-100 mb-2" onclick="copyLink()">Copy link</button>
+            </div>
+        </div>
+        <p class="mt-3">To earn the 40% reward, the referred individual must complete their sign-up using your unique referral link and purchase a service. <a href="{% url 'about' %}">Learn more about Buzz4less</a></p>
+    </div>
+
+    <h1 class="mt-5 mb-3" style="text-align: center; font-size:30px">REFERRED USERS</h1>
+    <h3 class="mt-5 text-center">Total Earnings: ${{ total_earnings }}</h3>
+
+    {% if referred_users %}
+        {% for user in referred_users %}
+        <div class="card">
+            <div class="card-body d-flex flex-column flex-md-row align-items-center">
+                <div class="text-center text-md-start">
+                    <h5 class="card-title">{{ user.referred_user.username }}</h5>
+                    <!-- <p class="card-text text-muted">Earned - ${{ user.earnings }}</p> -->
+                </div>
+                <div class="ms-md-auto text-center text-md-end">
+                    <p style="color: rgb(40, 128, 40);"> ${{ user.earnings | intcomma }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No users referred yet.</p>
+    {% endif %}
+
+    <div class="d-flex flex-column align-items-center">
+        <div class="d-flex justify-content-between">
+            <!-- First Button -->
+            <button data-bs-toggle="modal" data-bs-target="#withdrawModal" id="withdrawButton" style="color: #fff;" type="button" class="btn btn-info mt-5 me-3" disabled>Withdraw via paypay</button>
+    
+            <!-- Second Button -->
+            <button data-bs-toggle="modal" data-bs-target="#cryptoWithdrawModal" id="secondButton" style="color: #fff;" type="button" class="btn btn-info mt-5" disabled>Withdraw via Crypto</button>
+        </div>
+        <p id="withdrawMessage" class="mt-3">Withdrawals are only allowed on Mondays.</p>
+    </div>
+</div>
+
+  <!-- Paypal Withdrawal Modal -->
+<div class="modal fade" id="withdrawModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="withdrawModalLabel">Make a withdrawal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="withdrawForm" action="{% url 'withdrawal' %}" method="POST" onsubmit="return validateWithdrawalAmount()">
+                    {% csrf_token %}
+                    <input type="hidden" name="payment_method" value="paypal">
+                    {% if user.is_authenticated %}
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    {% else %}
+                    <input type="hidden" name="user_id" value="0">
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="name" class="col-form-label">Name:</label>
+                        <input type="text" name="name" class="form-control" {% if user.is_authenticated %} value="{{ user.first_name }} {{ user.last_name }}" {% endif %} required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="col-form-label">Email:</label>
+                        <input type="email" name="email" class="form-control" {% if user.is_authenticated %} value="{{ user.email }}" {% endif %} required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone" class="col-form-label">Phone:</label>
+                        <input type="text" name="phone" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="paypal_username" class="col-form-label">Paypal Username:</label>
+                        <input type="text" name="paypal_username" class="form-control">
+                    </div>
+<!-- 
+                    <div class="form-group">
+                        <label for="accountName" class="col-form-label">Account Name:</label>
+                        <input type="text" name="accountName" class="form-control">
+                    </div> -->
+
+                    <div class="form-group">
+                        <label for="number" class="col-form-label">Amount to Withdraw:</label>
+                        <input id="withdrawAmount" name="number" class="form-control" required>
+                    </div>
+                    <hr>
+                    <input class="btn-info" style="color:#fff" type="submit" value="Send" class="btn btn-block btn-secondary">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Crypto Withdraw Modal -->
+<div class="modal fade" id="cryptoWithdrawModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="cryptoWithdrawModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cryptoWithdrawModalLabel">Make a Crypto Withdrawal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="cryptoWithdrawForm" action="{% url 'withdrawal' %}" method="POST" onsubmit="return validateWithdrawalAmount()">
+                    {% csrf_token %}
+                    <input type="hidden" name="payment_method" value="crypto">
+                    {% if user.is_authenticated %}
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    {% else %}
+                    <input type="hidden" name="user_id" value="0">
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="name" class="col-form-label">Name:</label>
+                        <input type="text" name="name" class="form-control" {% if user.is_authenticated %} value="{{ user.first_name }} {{ user.last_name }}" {% endif %} required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="col-form-label">Email:</label>
+                        <input type="email" name="email" class="form-control" {% if user.is_authenticated %} value="{{ user.email }}" {% endif %} required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone" class="col-form-label">Phone:</label>
+                        <input type="text" name="phone" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cryptoCoin" class="col-form-label">Crypto Coin:</label>
+                        <select name="cryptoCoin" id="cryptoCoin" class="form-control" required>
+                            <option value="">Select a coin</option>
+                            <option value="tron">Tron</option>
+                            <option value="litecoin">Litecoin</option>
+                            <option value="usdt_trc20">USDT TRC20</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cryptoWallet" class="col-form-label">Crypto Wallet Address:</label>
+                        <input type="text" name="cryptoWallet" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="number" class="col-form-label">Amount to Withdraw:</label>
+                        <input id="withdrawAmountCrypto" name="number" class="form-control" required>
+                    </div>
+                    <hr>
+                    <input class="btn-info" style="color:#fff" type="submit" value="Send" class="btn btn-block btn-secondary">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Get the user's total earnings passed from the backend
+    const totalEarnings = parseFloat("{{ total_earnings|floatformat:2 }}");
+
+    function validateWithdrawalAmount() {
+        const amount = parseFloat(document.getElementById("withdrawAmount").value);
+        const amountCrypto = parseFloat(document.getElementById("withdrawAmountCrypto").value);
+        
+        // Validate the minimum withdrawal amount
+        if ((amount && amount < 10) || (amountCrypto && amountCrypto < 10)) {
+            alert("The minimum amount to withdraw is $10. Please enter a valid amount.");
+            return false; // Prevent the form from submitting
+        }
+
+        // Validate that the withdrawal amount does not exceed total earnings
+        if ((amount && amount > totalEarnings) || (amountCrypto && amountCrypto > totalEarnings)) {
+            alert("You cannot withdraw more than your total earnings. Please enter a valid amount.");
+            return false; // Prevent the form from submitting
+        }
+        
+        return true; // Allow the form to submit
+    }
+
+    function copyLink() {
+        var copyText = document.getElementById("referralLink");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobile devices
+        navigator.clipboard.writeText(copyText.value);
+        alert("Copied the link: " + copyText.value);
+    }
+
+    // Get the current day of the week
+    const currentDay = new Date().getDay(); // 0 is Sunday, 1 is Monday, ..., 6 is Saturday
+
+    // Check if today is Monday (1)
+    if (currentDay === 1) {
+        document.getElementById("withdrawButton").disabled = false;
+        document.getElementById("secondButton").disabled = false;
+        document.getElementById("withdrawMessage").innerText = "You can withdraw today.";
+    } else {
+        document.getElementById("withdrawButton").disabled = true;
+        document.getElementById("secondButton").disabled = true;
+        document.getElementById("withdrawMessage").innerText = "Withdrawals are only allowed on Mondays.";
+    }
+</script>
+{% endblock %}

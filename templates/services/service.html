@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %} | {{ service.name }}  {% endblock %} 
+{% block content %}
+
+<style>
+    .container {
+        max-width: 1200px;
+        padding: 4rem 1rem 1rem 1rem;
+    }
+    
+    .section-left, .section-right {
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 0.5rem;
+    }
+    
+    .section-left {
+        margin-bottom: 1rem;
+    }
+    
+    .section-right {
+        border: 2px solid #16D5FF;
+    }
+    
+    .plan-option {
+        border: 1px solid #D1D5DB;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .plan-option:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-continue {
+        background-color: #16D5FF;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: bold;
+        border: none;
+        transition: background-color 0.3s ease;
+    }
+    
+    .btn-continue:hover {
+        background-color: #16D5FF;
+    }
+    
+    .plan-header {
+        font-weight: bold;
+        color: #333333;
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .plan-price {
+        color: #16D5FF;
+        font-weight: bold;
+        font-size: 1.25rem;
+    }
+    
+    /* Ensure responsiveness */
+    @media (max-width: 1200px) {
+        .container {
+            padding-top: 4rem;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .section-left, .section-right {
+            padding: 1.5rem;
+        }
+        .plan-header, .plan-price {
+            font-size: 1.125rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .section-left, .section-right {
+            padding: 1rem;
+        }
+    
+        .plan-header, .plan-price {
+            font-size: 1rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .section-left, .section-right {
+            padding: 0.75rem;
+        }
+    
+        .plan-header, .plan-price {
+            font-size: 0.875rem;
+        }
+        
+        .btn-continue {
+            width: 100%;
+            text-align: center;
+            padding: 1rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .container {
+            padding-top: 0; /* Remove padding-top on smaller screens */
+            width: 100%;
+            max-width: none;
+        }
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-6 col-md-12 section-left mb-4">
+            <h4 style="font-size: 1rem; color:#16D5FF" class="mb-2">Select Your Plan!</h4>
+            <h2 style="font-size: 2.5rem; font-weight:600" class="mb-3">{{ service.name }}</h2>
+            <p>{{ service.main_description }}</p>
+        </div>
+
+        <div class="col-lg-6 col-md-12 section-right">
+            <form action="{% url 'process_payment' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="service_id" value="{{ service.id }}">
+                <input type="hidden" name="plan_id" id="selected-plan-id">
+                {% for plan in plans %}
+                <div class="form-check plan-option">
+                    <input class="form-check-input" type="radio" name="plan" id="plan-{{ plan.id }}">
+                    <label class="form-check-label plan-header d-flex justify-content-between" for="plan-{{ plan.id }}">
+                        <!-- {{ plan.duration_in_months }} --> {{ plan.name }} <span class="plan-price">${{ plan.price | intcomma }}</span> 
+                    </label>
+                    <p>{{ plan.description }}</p>
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-continue w-100">Subcribe</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('input[name="plan"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById('selected-plan-id').value = this.id.split('-')[1];
+        });
+    });
+</script>
+
+{% endblock %}

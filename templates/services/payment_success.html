@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="alert text-center">
+        <img class="mb-2" style="width: 5rem; height:5rem" src="{% static 'img/pay3.png' %}" alt="...">
+        <h1>Payment Successful</h1>
+        <p>Thank you for your payment. Your subscription has been activated.</p>
+        <a href="{% url 'services' %}" class="btn btn-primary">Return to Services</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% load static %}
+
+<nav class="navbar navbar-expand-lg bg-white navbar-light sticky-top p-0 px-4 px-lg-5">
+    <a href="{% url 'index' %}" class="navbar-brand d-flex align-items-center">
+        <h2 class="m-0 text-primary"><img class="img-fluid me-2" src="{% static 'img/icon-1.png' %}" alt=""
+                style="width: 45px;">Buzz4less</h2>
+    </a>
+    <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="navbar-nav ms-auto py-4 py-lg-0">
+            <a href="{% url 'index' %}" 
+            {% if '/' == request.path %} 
+                class="nav-item nav-link active" 
+            {% else %} 
+                class="nav-item nav-link"
+            {%endif %}>Home</a>
+
+            <a href="{% url 'about' %}" 
+            {% if 'about' in request.path %} 
+                class="nav-item nav-link active" 
+            {% else %} 
+                class="nav-item nav-link"
+            {%endif %}>About</a>
+
+            <a href="{% url 'services' %}" 
+            {% if 'services' in request.path %} 
+                class="nav-item nav-link active" 
+            {% else %} 
+                class="nav-item nav-link"
+            {%endif %}>Service</a>
+            <!-- <a href="roadmap.html" class="nav-item nav-link">Roadmap</a> -->
+            <!-- <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+                <div class="dropdown-menu shadow-sm m-0">
+                    <a href="feature.html" class="dropdown-item">Feature</a>
+                    <a href="token.html" class="dropdown-item">Token Sale</a>
+                    <a href="faq.html" class="dropdown-item">FAQs</a>
+                    <a href="404.html" class="dropdown-item">404 Page</a>
+                </div>
+            </div> -->
+            <a href="{% url 'contact' %}"
+            {% if 'contact' in request.path %} 
+                class="nav-item nav-link active" 
+            {% else %} 
+                class="nav-item nav-link"
+            {%endif %}>Contact</a>
+
+            <ul class="navbar-nav ml-auto">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" 
+                    {% if 'dashboard' in request.path %} 
+                        class="nav-item nav-link active" 
+                    {% else %} 
+                        class="nav-item nav-link"
+                    {% endif %}>Dashboard</a>
+
+                    <a href="{% url 'referral' %}" 
+                    {% if 'referral' in request.path %} 
+                        class="nav-item nav-link active" 
+                    {% else %} 
+                        class="nav-item nav-link"
+                    {% endif %}>Referrals</a>
+
+                    <a href="javascript:{document.getElementById('logout').submit()}" class="nav-link" class="nav-link">
+                         Logout
+                    </a>
+                    <form action="{% url 'logout' %}" method="POST" id="logout">
+                        {% csrf_token %}  <!--  Cross-Site Request Forgery. It is a type of malicious exploit where unauthorized commands are transmitted from a user that a web application trusts.  -->
+                        <input type="hidden">
+                    </form>
+
+                {% else %}
+                    <a href="{% url 'login' %}" 
+                    {% if 'login' in request.path %} 
+                        class="nav-item nav-link active" 
+                    {% else %} 
+                        class="nav-item nav-link"
+                    {% endif %}>Sign In</a>
+                {% endif %}
+            </ul>
+            
+
+            <!-- <a href="{% url 'signup' %}" 
+            {% if 'signup' in request.path %} 
+                class="nav-item nav-link active" 
+            {% else %} 
+                class="nav-item nav-link"
+            {%endif %}>SignUp</a> -->
+        </div>
+        <!-- <div class="h-100 d-lg-inline-flex align-items-center d-none">
+            <a class="btn btn-square rounded-circle bg-light text-primary me-2" href=""><i
+                    class="fab fa-facebook-f"></i></a>
+            <a class="btn btn-square rounded-circle bg-light text-primary me-2" href=""><i
+                    class="fab fa-twitter"></i></a>
+            <a class="btn btn-square rounded-circle bg-light text-primary me-0" href=""><i
+                    class="fab fa-linkedin-in"></i></a>
+        </div> -->
+    </div>
+</nav>

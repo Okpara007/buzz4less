@@ -1,0 +1,27 @@
+#header {
+    background-color: white;
+    color: #15d5fe;
+}
+
+#header a:link, #header a:visited, #logout-form button {
+    color: #15d5fe;
+    text-decoration: underline;
+}
+
+/* a:link, a:visited {
+    color: var(--link-fg);
+    text-decoration: underline;
+    transition: color 0.15s, background 0.15s;
+} */
+
+div.breadcrumbs {
+    background: #15d5fe;
+}
+
+.module h2, .module caption, .inline-group h2 {
+    background: #15d5fe;
+}
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: #15d5fe;
+}
