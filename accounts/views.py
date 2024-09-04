@@ -97,6 +97,7 @@ def logout(request):
 def dashboard(request):
     user = request.user
     subscriptions = Subscription.objects.filter(user=user, status='active')
+    
 
     context = {
         'subscriptions': subscriptions,

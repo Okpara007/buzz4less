@@ -159,7 +159,11 @@ def stripe_webhook(request):
         # Get the user associated with the Stripe session
         try:
             user = User.objects.get(username=event['data']['object']['client_reference_id'])
-            plan = Plan.objects.get(stripe_subscription_id=subscription_id)
+            
+            # Here we should get the plan from the invoice metadata or through another way
+            plan = Plan.objects.get(id=event['data']['object']['lines']['data'][0]['price']['metadata']['plan_id'])  # Adjust this according to how the plan is referenced in Stripe
+
+            # Create a subscription
             Subscription.objects.create(
                 user=user,
                 plan=plan,
@@ -173,3 +177,4 @@ def stripe_webhook(request):
 
     # Handle other event types as needed
     return HttpResponse(status=200)
+
