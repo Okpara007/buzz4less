@@ -4,6 +4,9 @@ from django.contrib.messages import constants as messages
 import ssl
 import certifi
 import dj_database_url
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,6 +40,8 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'contacts.apps.ContactsConfig',
     'django.contrib.humanize',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -136,6 +141,9 @@ MEDIA_URL = '/media/'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Cloudinary for media file storage
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = 'pk_live_51PonNDCDCOrfP3WnPIiJAlJRL8CBQNVJVHGjtA8c3IIq1skvkkYlS3QXgeHiprkM4naTpR4xtxT8WW6xNhaWQAvb005Z0vKVjk'
 
@@ -160,3 +168,9 @@ SSL_CERT_FILE = certifi.where()
 
 # Optional: Override SSL verification for development (not recommended for production)
 ssl._create_default_https_context = ssl._create_unverified_context  # Uncomment this for development only
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dystjcg1j',
+    'API_KEY': '716197218755935',
+    'API_SECRET': 'Fq1AYvBjvSZy7M6rSbY8W9ABDWo',
+}

@@ -2,12 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
+from cloudinary.models import CloudinaryField
 
 class Service(models.Model):
     name = models.CharField(max_length=100)
     pre_description = models.TextField(blank=True, null=True)
     main_description = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True, null=True)
+    image = CloudinaryField('image', blank=True, folder="buzz4less_images")  # Store images in buzz4less_images folder
     is_published = models.BooleanField(default=True)
 
     def __str__(self):
