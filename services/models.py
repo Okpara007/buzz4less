@@ -15,7 +15,7 @@ class Service(models.Model):
         return self.name
 
 class Plan(models.Model):
-    service = models.ForeignKey(Service, on_delete=models.DO_NOTHING, related_name='plans')
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='plans')
     name = models.CharField(max_length=100)
     duration_in_months = models.IntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)  # Changed to DecimalField for currency
