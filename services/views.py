@@ -123,15 +123,15 @@ def cancel_subscription(request, subscription_id):
         subscription = get_object_or_404(Subscription, id=subscription_id, user=request.user, status='active')
         
         # Immediately cancel the subscription with Stripe
-        stripe.Subscription.delete(subscription.stripe_subscription_id)  # Assuming stripe_subscription_id is stored in Plan or Subscription model
+        stripe.Subscription.delete(subscription.stripe_subscription_id)
 
         # Update the subscription status in the database to 'canceled'
         subscription.status = 'canceled'
         subscription.end_date = timezone.now()  # Set the end date to the current time
         subscription.save()
 
-        # Redirect or inform the user that their subscription has been canceled
-        return redirect('/subscription/canceled/')  # Redirect to a confirmation page
+        # Render the payment_cancel.html template with the optional service_id context
+        return render(request, 'payment_cancel.html', {'service_id': subscription.service_id})  # Pass service_id if applicable
     except Subscription.DoesNotExist:
         # If no active subscription is found, redirect or show an error
         return redirect('/dashboard/')
