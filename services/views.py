@@ -175,7 +175,7 @@ def stripe_webhook(request):
                 user=user,
                 plan=plan,
                 defaults={
-                    'stripe_subscription_id': session['subscription'],
+                    'stripe_subscription_id': session.get('subscription'),
                     'start_date': timezone.now(),
                     'status': 'active'
                 }

@@ -100,7 +100,7 @@ def dashboard(request):
     user = request.user
     subscriptions = Subscription.objects.filter(user=user)
 
-    logger.info(f"Retrieved {subscriptions.count()} subscriptions for user {user.username}")
+    logger.info(f"Retrieved {subscriptions.count()} subscriptions for user {user.username}")  # Log this to verify the count
 
     context = {
         'subscriptions': subscriptions,
