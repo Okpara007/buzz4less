@@ -130,8 +130,8 @@ def cancel_subscription(request, subscription_id):
         subscription.end_date = timezone.now()  # Set the end date to the current time
         subscription.save()
 
-        # Render the payment_cancel.html template with the optional service_id context
-        return render(request, 'payment_cancel.html', {'service_id': subscription.service_id})  # Pass service_id if applicable
+        # Render the payment_cancel.html template with the correct service_id context
+        return render(request, 'payment_cancel.html', {'service_id': subscription.plan.service.id})  # Access service_id via plan.service.id
     except Subscription.DoesNotExist:
         # If no active subscription is found, redirect or show an error
         return redirect('/dashboard/')
