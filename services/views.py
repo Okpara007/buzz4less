@@ -107,7 +107,7 @@ def process_payment(request):
     return redirect('service', service_id=request.POST.get('service_id'))
 
 def payment_success(request):
-    return render(request, 'services/payment_success.html')
+    return redirect('dashboard')  # Redirect the user to their dashboard after successful payment
 
 def payment_cancel(request):
     service_id = request.session.get('service_id')
@@ -145,36 +145,43 @@ def stripe_webhook(request):
         event = stripe.Webhook.construct_event(
             payload, sig_header, settings.STRIPE_ENDPOINT_SECRET
         )
-    except ValueError as e:
+    except ValueError:
         return HttpResponse(status=400)
-    except stripe.error.SignatureVerificationError as e:
+    except stripe.error.SignatureVerificationError:
         return HttpResponse(status=400)
 
-    # Handle the event
-    if event['type'] == 'invoice.payment_succeeded':
-        invoice = event['data']['object']
-        subscription_id = invoice['subscription']
-        customer_id = invoice['customer']
+    # Handle successful subscription payment
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        client_reference_id = session.get('client_reference_id')  # The username of the user
 
-        # Get the user associated with the Stripe session
         try:
-            user = User.objects.get(username=event['data']['object']['client_reference_id'])
-            
-            # Here we should get the plan from the invoice metadata or through another way
-            plan = Plan.objects.get(id=event['data']['object']['lines']['data'][0]['price']['metadata']['plan_id'])  # Adjust this according to how the plan is referenced in Stripe
+            # Fetch the user based on the reference ID (username)
+            user = User.objects.get(username=client_reference_id)
 
-            # Create a subscription
-            Subscription.objects.create(
+            # Fetch the plan and service based on the session metadata
+            plan = Plan.objects.get(id=session['metadata']['plan_id'])
+
+            # Create or update the subscription
+            subscription, created = Subscription.objects.get_or_create(
                 user=user,
                 plan=plan,
-                stripe_subscription_id=subscription_id,
-                start_date=timezone.now(),
-                end_date=timezone.now() + timedelta(days=plan.duration_in_months * 30),
-                status='active'
+                defaults={
+                    'stripe_subscription_id': session['subscription'],
+                    'start_date': timezone.now(),
+                    'status': 'active'
+                }
             )
-        except (User.DoesNotExist, Plan.DoesNotExist):
-            pass  # Handle cases where user or plan is not found
+            
+            # Update subscription end date and status if it already exists
+            if not created:
+                subscription.status = 'active'
+                subscription.end_date = timezone.now() + timedelta(days=plan.duration_in_months * 30)
+                subscription.save()
 
-    # Handle other event types as needed
+        except (User.DoesNotExist, Plan.DoesNotExist):
+            return HttpResponse(status=400)
+
     return HttpResponse(status=200)
+
 
