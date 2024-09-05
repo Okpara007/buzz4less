@@ -119,27 +119,30 @@ def payment_cancel(request):
 
 def cancel_subscription(request, subscription_id):
     try:
-        # Get the specific subscription by ID and ensure it belongs to the current user and is active
+        # Get the specific subscription by ID and make sure it belongs to the current user
         subscription = get_object_or_404(Subscription, id=subscription_id, user=request.user, status='active')
 
-        # Cancel the subscription with Stripe if it has a valid Stripe subscription ID
+        # Ensure the stripe_subscription_id is properly URL-encoded
         if subscription.stripe_subscription_id:
-            stripe.Subscription.delete(subscription.stripe_subscription_id)
+            stripe_subscription_id = quote(subscription.stripe_subscription_id)
+            
+            # Immediately cancel the subscription with Stripe
+            stripe.Subscription.delete(stripe_subscription_id)
         
         # Update the subscription status in the database to 'canceled'
         subscription.status = 'canceled'
-        subscription.end_date = timezone.now()
+        subscription.end_date = timezone.now()  # Set the end date to the current time
         subscription.save()
 
-        # Redirect to a confirmation page for canceled payment
-        return redirect('payment_cancel')  # Use the named URL instead of hardcoding the path
+        # Redirect to a confirmation page
+        return redirect('/subscription/canceled/')
     except Subscription.DoesNotExist:
-        # Redirect to the dashboard if no active subscription is found
-        return redirect('dashboard')  # Use named URL for dashboard
+        # If no active subscription is found, redirect to the dashboard
+        return redirect('/dashboard/')
     except stripe.error.InvalidRequestError as e:
-        # Log the Stripe error if the subscription cancellation fails
+        # Log Stripe error if subscription deletion fails and redirect the user back to the dashboard
         print(f"Stripe error: {e}")
-        return redirect('dashboard')  # Redirect to the dashboard on failure
+        return redirect('/dashboard/')
 
 @csrf_exempt
 def stripe_webhook(request):
