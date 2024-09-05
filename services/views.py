@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from decimal import Decimal
 from datetime import timedelta
 from django.contrib.auth.models import User
+from urllib.parse import quote
 
 # Set up your Stripe secret key
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -118,21 +119,29 @@ def payment_cancel(request):
 
 def cancel_subscription(request, subscription_id):
     try:
-        # Get the specific subscription by ID
+        # Get the specific subscription by ID and make sure it belongs to the current user
         subscription = get_object_or_404(Subscription, id=subscription_id, user=request.user, status='active')
-        
-        # Immediately cancel the subscription with Stripe
-        stripe.Subscription.delete(subscription.stripe_subscription_id)  # Assuming stripe_subscription_id is stored in Plan or Subscription model
 
+        # Ensure the stripe_subscription_id is properly URL-encoded
+        if subscription.stripe_subscription_id:
+            stripe_subscription_id = quote(subscription.stripe_subscription_id)
+            
+            # Immediately cancel the subscription with Stripe
+            stripe.Subscription.delete(stripe_subscription_id)
+        
         # Update the subscription status in the database to 'canceled'
         subscription.status = 'canceled'
         subscription.end_date = timezone.now()  # Set the end date to the current time
         subscription.save()
 
-        # Redirect or inform the user that their subscription has been canceled
-        return redirect('/subscription/canceled/')  # Redirect to a confirmation page
+        # Redirect to a confirmation page
+        return redirect('/subscription/canceled/')
     except Subscription.DoesNotExist:
-        # If no active subscription is found, redirect or show an error
+        # If no active subscription is found, redirect to the dashboard
+        return redirect('/dashboard/')
+    except stripe.error.InvalidRequestError as e:
+        # Log Stripe error if subscription deletion fails and redirect the user back to the dashboard
+        print(f"Stripe error: {e}")
         return redirect('/dashboard/')
 
 @csrf_exempt
