@@ -175,14 +175,15 @@ def stripe_webhook(request):
                 user=user,
                 plan=plan,
                 defaults={
-                    'stripe_subscription_id': session.get('subscription'),
+                    'stripe_subscription_id': session['subscription'],
                     'start_date': timezone.now(),
-                    'status': 'active'
+                    'status': 'active'  # Make sure status is set to 'active'
                 }
             )
 
             logger.info(f"Subscription {'created' if created else 'updated'} for user: {user.username}")
 
+            # Set the status to 'active' even if the subscription already exists
             if not created:
                 subscription.status = 'active'
                 subscription.end_date = timezone.now() + timedelta(days=plan.duration_in_months * 30)
@@ -193,5 +194,6 @@ def stripe_webhook(request):
             return HttpResponse(status=400)
 
     return HttpResponse(status=200)
+
 
 
