@@ -135,7 +135,7 @@ def cancel_subscription(request, subscription_id):
         subscription.save()
 
         # Redirect to a confirmation page
-        return redirect('/subscription/canceled/')
+        return redirect('/payment/cancel/')
     except Subscription.DoesNotExist:
         # If no active subscription is found, redirect to the dashboard
         return redirect('/dashboard/')

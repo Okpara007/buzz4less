@@ -1,11 +1,20 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-    <h1>Payment Canceled</h1>
-    <p>Your payment was canceled. If you want to select a different plan, click the button below.</p>
-    {% if service_id %}
-        <a href="{% url 'service' service_id %}" class="btn btn-primary">Go Back to Service</a>
-    {% else %}
-        <a href="{% url 'services' %}" class="btn btn-primary">Go Back to Services</a>
-    {% endif %}
+<div class="container mt-5">
+    <div class="alert text-center">
+        <!-- Replace this with an appropriate image for the cancellation case -->
+        <img class="mb-2" style="width: 5rem; height:5rem" src="{% static 'img/pay-cancel.png' %}" alt="Payment Canceled">
+        <h1>Payment Canceled</h1>
+        <p>Your payment was canceled. If you want to select a different plan, click the button below.</p>
+        
+        <!-- Use service_id to conditionally render the correct redirect link -->
+        {% if service_id %}
+            <a href="{% url 'service' service_id %}" class="btn btn-primary">Go Back to Service</a>
+        {% else %}
+            <a href="{% url 'services' %}" class="btn btn-primary">Go Back to Services</a>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
