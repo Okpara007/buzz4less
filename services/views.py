@@ -11,6 +11,9 @@ from decimal import Decimal
 from datetime import timedelta
 from django.contrib.auth.models import User
 from urllib.parse import quote
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Set up your Stripe secret key
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -88,7 +91,8 @@ def process_payment(request):
                 mode=payment_mode,  # Set the payment mode based on the plan
                 success_url=request.build_absolute_uri('/services/payment/success/'),
                 cancel_url=request.build_absolute_uri(f'/services/{service_id}/'),
-                client_reference_id=request.user.username  # Set the name to appear in the checkout page
+                client_reference_id=request.user.username,  # Pass username as a reference
+                metadata={'plan_id': plan.id}  # Pass the plan ID in the metadata for later use
             )
 
             # Save the service_id in the session in case the user cancels
@@ -146,24 +150,27 @@ def stripe_webhook(request):
         event = stripe.Webhook.construct_event(
             payload, sig_header, settings.STRIPE_ENDPOINT_SECRET
         )
+        logger.info(f"Received Stripe event: {event['type']}")
     except ValueError:
+        logger.error("Invalid payload")
         return HttpResponse(status=400)
     except stripe.error.SignatureVerificationError:
+        logger.error("Invalid signature")
         return HttpResponse(status=400)
 
-    # Handle successful subscription payment
+    # Handle subscription completion event
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-        client_reference_id = session.get('client_reference_id')  # The username of the user
+        client_reference_id = session.get('client_reference_id')
+        plan_id = session['metadata'].get('plan_id')
+
+        logger.info(f"Processing session for user: {client_reference_id}, plan_id: {plan_id}")
 
         try:
-            # Fetch the user based on the reference ID (username)
             user = User.objects.get(username=client_reference_id)
+            plan = Plan.objects.get(id=plan_id)
 
-            # Fetch the plan and service based on the session metadata
-            plan = Plan.objects.get(id=session['metadata']['plan_id'])
-
-            # Create or update the subscription
+            # Create or update subscription
             subscription, created = Subscription.objects.get_or_create(
                 user=user,
                 plan=plan,
@@ -173,14 +180,16 @@ def stripe_webhook(request):
                     'status': 'active'
                 }
             )
-            
-            # Update subscription end date and status if it already exists
+
+            logger.info(f"Subscription {'created' if created else 'updated'} for user: {user.username}")
+
             if not created:
                 subscription.status = 'active'
                 subscription.end_date = timezone.now() + timedelta(days=plan.duration_in_months * 30)
                 subscription.save()
 
         except (User.DoesNotExist, Plan.DoesNotExist):
+            logger.error("User or Plan does not exist")
             return HttpResponse(status=400)
 
     return HttpResponse(status=200)

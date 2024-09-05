@@ -13,7 +13,9 @@ import uuid
 from django.db import transaction
 from django.core.mail import send_mail
 from django.utils import timezone
+import logging
 
+logger = logging.getLogger(__name__)
 
 def generate_referral_code():
     while True:
@@ -96,7 +98,9 @@ def logout(request):
 @login_required
 def dashboard(request):
     user = request.user
-    subscriptions = Subscription.objects.filter(user=user, status='active')
+    subscriptions = Subscription.objects.filter(user=user)
+
+    logger.info(f"Retrieved {subscriptions.count()} subscriptions for user {user.username}")
 
     context = {
         'subscriptions': subscriptions,
