@@ -163,14 +163,14 @@ def stripe_webhook(request):
         client_reference_id = session.get('client_reference_id')
         plan_id = session['metadata'].get('plan_id')
         
-        # Handle both subscription and one-time payment
-        subscription_id = session.get('subscription')  # Retrieve the Stripe subscription ID for recurring payments
-        
+        # Handle the subscription creation
+        subscription_id = session.get('subscription')  # Get the subscription ID from Stripe
+
         try:
             user = User.objects.get(username=client_reference_id)
             plan = Plan.objects.get(id=plan_id)
 
-            # Check if the user has an active subscription to the plan and update it or create a new one
+            # Create or update the subscription
             subscription, created = Subscription.objects.get_or_create(
                 user=user,
                 plan=plan,
@@ -183,18 +183,18 @@ def stripe_webhook(request):
             )
             if not created:
                 subscription.status = 'active'
-                subscription.start_date = timezone.now()
-                subscription.end_date = timezone.now() + timedelta(days=plan.duration_in_months * 30)
                 subscription.stripe_subscription_id = subscription_id if subscription_id else ''
+                subscription.end_date = timezone.now() + timedelta(days=plan.duration_in_months * 30)
                 subscription.save()
 
-            logger.info(f"Subscription created or updated for user {user.username} and plan {plan.name}")
+            logger.info(f"Subscription created or updated for user {user.username}")
 
         except (User.DoesNotExist, Plan.DoesNotExist):
             logger.error("User or Plan does not exist")
             return HttpResponse(status=400)
 
     return HttpResponse(status=200)
+
 
 
 

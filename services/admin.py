@@ -18,9 +18,9 @@ class PlanAdmin(admin.ModelAdmin):
     list_per_page = 25
 
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'plan', 'start_date', 'end_date')
-    list_display_links = ('id', 'plan')
-    search_fields = ('plan',)
+    list_display = ('id', 'user', 'plan', 'status', 'start_date', 'end_date')
+    search_fields = ('user__username', 'plan__name')
+    list_filter = ('status',)
     list_per_page = 25
     
 
