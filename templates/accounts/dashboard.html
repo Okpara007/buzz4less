@@ -66,38 +66,39 @@
             <div class="col-md-12">
                 <h2>Welcome {{ user.first_name }}!</h2>
                 {% if subscriptions %}
-                    <p style="color: black;">Here are your active subscriptions:</p>
+                    <p style="color: black;">Here are your Subscriptions:</p>
                     <table class="table">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Plan</th>
-                                <th scope="col">Service</th>
                                 <th scope="col">Status</th>
-                                <th scope="col">Start Date</th>
-                                <th scope="col">End Date</th>
+                                <th scope="col">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for subscription in subscriptions %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
-                                    <td>{{ subscription.plan.name }}</td>
-                                    <td>{{ subscription.plan.service.name }}</td>
+                                    <td>{{ subscription.plan.name }} ({{ subscription.plan.service.name }})</td>
                                     <td>{{ subscription.status }}</td>
-                                    <td>{{ subscription.start_date }}</td>
-                                    <td>{{ subscription.end_date }}</td>
+                                    <td>
+                                        {% if subscription.status == 'active' %}
+                                        <a href="{% url 'cancel_subscription' subscription.id %}" class="btn btn-danger">Cancel Subscription</a>
+                                        {% else %}
+                                            <span class="text-muted">Canceled</span>
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 {% else %}
-                    <p style="color: black;">You do not have any active subscriptions.</p>
+                    <p style="color: black;">You currently do not have any subscriptions.</p>
                 {% endif %}
             </div>
         </div>
     </div>
 </section>
-
 
 {% endblock %}

@@ -98,7 +98,7 @@ def logout(request):
 @login_required
 def dashboard(request):
     user = request.user
-    # Fetch only active subscriptions
+    # Fetch only active subscriptions and order by start date (newest first)
     subscriptions = Subscription.objects.filter(user=user, status='active').order_by('-start_date')
 
     context = {

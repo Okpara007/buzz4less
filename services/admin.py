@@ -19,9 +19,9 @@ class PlanAdmin(admin.ModelAdmin):
 
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'plan', 'status', 'start_date', 'end_date')
-    search_fields = ('user__username', 'plan__name')
-    list_filter = ('status',)
-    list_per_page = 25
+    search_fields = ('id', 'user__username', 'plan__name', 'status')
+    list_display_links = ('id', 'user', 'plan')
+    list_filter = ('status', 'plan__service__name')
     
 
 admin.site.register(Service, ServiceAdmin) 
