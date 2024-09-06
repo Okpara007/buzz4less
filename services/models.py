@@ -36,16 +36,18 @@ class Subscription(models.Model):
     start_date = models.DateTimeField(default=timezone.now)
     end_date = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
-    stripe_subscription_id = models.CharField(max_length=255, blank=True, null=True)  # Added this field
+    stripe_subscription_id = models.CharField(max_length=255, blank=True, null=True)
 
     def save(self, *args, **kwargs):
+        # Calculate the end date based on the plan duration, only if it's not already set
         if not self.end_date:
             self.end_date = self.start_date + timedelta(days=self.plan.duration_in_months * 30)
         super().save(*args, **kwargs)
 
     def cancel(self):
+        # Set the subscription status to canceled and update the end date to the current time
         self.status = 'canceled'
-        self.end_date = timezone.now()  # Optionally, set the end_date to the current time
+        self.end_date = timezone.now()
         self.save()
 
     def __str__(self):

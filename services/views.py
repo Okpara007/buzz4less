@@ -162,33 +162,40 @@ def stripe_webhook(request):
         session = event['data']['object']
         client_reference_id = session.get('client_reference_id')
         plan_id = session['metadata'].get('plan_id')
-
+        
+        # Handle both subscription and one-time payment
+        subscription_id = session.get('subscription')  # Retrieve the Stripe subscription ID for recurring payments
+        
         try:
             user = User.objects.get(username=client_reference_id)
             plan = Plan.objects.get(id=plan_id)
 
-            # Create or update subscription and mark it as active
+            # Check if the user has an active subscription to the plan and update it or create a new one
             subscription, created = Subscription.objects.get_or_create(
                 user=user,
                 plan=plan,
                 defaults={
-                    'stripe_subscription_id': session['subscription'],
+                    'stripe_subscription_id': subscription_id if subscription_id else '',
                     'start_date': timezone.now(),
-                    'status': 'active'  # Make sure the status is set to active
+                    'end_date': timezone.now() + timedelta(days=plan.duration_in_months * 30),
+                    'status': 'active'
                 }
             )
-
-            # Set status to active if not already
             if not created:
                 subscription.status = 'active'
+                subscription.start_date = timezone.now()
                 subscription.end_date = timezone.now() + timedelta(days=plan.duration_in_months * 30)
+                subscription.stripe_subscription_id = subscription_id if subscription_id else ''
                 subscription.save()
+
+            logger.info(f"Subscription created or updated for user {user.username} and plan {plan.name}")
 
         except (User.DoesNotExist, Plan.DoesNotExist):
             logger.error("User or Plan does not exist")
             return HttpResponse(status=400)
 
     return HttpResponse(status=200)
+
 
 
 

@@ -99,7 +99,7 @@ def logout(request):
 def dashboard(request):
     user = request.user
     # Filter subscriptions by active status
-    subscriptions = Subscription.objects.filter(user=user, status='active').order_by('-start_date')  
+    subscriptions = Subscription.objects.filter(user=user, status='active').order_by('-start_date')
 
     context = {
         'subscriptions': subscriptions,
