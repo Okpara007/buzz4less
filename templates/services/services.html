@@ -5,7 +5,7 @@
 
 <style>
     .breadcrumb-item a:hover {
-    color: #027FEA !important;
+    color: #16d5ff !important;
     }
 </style>
 
@@ -20,7 +20,7 @@
                     <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item"><a style="color: #999999;" href="{% url 'index' %}">Home</a></li>
                         <!-- <li class="breadcrumb-item"><a href="#">Pages</a></li> -->
-                        <li class="breadcrumb-item active" aria-current="page" style="color: #027FEA;">Services</li>
+                        <li class="breadcrumb-item active" aria-current="page" style="color: #16d5ff;">Services</li>
                     </ol>
                 </nav>
             </div>
@@ -39,7 +39,7 @@
     <div class="container">
         <div class="text-center mx-auto wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
             <h1 class="display-6">Services</h1>
-            <p style="color: #027FEA;" class=" fs-5 mb-5">Stream, Enjoy, Repeat with Ease</p>
+            <p style="color: #16d5ff;" class=" fs-5 mb-5">Stream, Enjoy, Repeat with Ease</p>
         </div>
         <div class="row g-4">
             {% if services %}
@@ -49,7 +49,7 @@
                             <img class="img-fluid mb-4" src="{{ service.image.url }}" style="height: 16rem; width:100%" alt="">
                             <h5 class="mb-3">{{ service.name }}</h5>
                             <p>{{ service.pre_description }}</p>
-                            <a style="color: #027FEA;" href="{% url 'service' service.id %}">More Info<i class="fa fa-arrow-right ms-2"></i></a>
+                            <a style="color: #16d5ff;" href="{% url 'service' service.id %}">More Info<i class="fa fa-arrow-right ms-2"></i></a>
                         </div>
                     </div>
                 {% endfor %}
