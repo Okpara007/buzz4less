@@ -98,9 +98,8 @@ def logout(request):
 @login_required
 def dashboard(request):
     user = request.user
-    subscriptions = Subscription.objects.filter(user=user, status='active').order_by('-start_date')  # Fetch only active subscriptions
-
-    logger.info(f"Retrieved {subscriptions.count()} active subscriptions for user {user.username}")
+    # Filter subscriptions by active status
+    subscriptions = Subscription.objects.filter(user=user, status='active').order_by('-start_date')  
 
     context = {
         'subscriptions': subscriptions,

@@ -158,32 +158,27 @@ def stripe_webhook(request):
         logger.error("Invalid signature")
         return HttpResponse(status=400)
 
-    # Handle subscription completion event
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         client_reference_id = session.get('client_reference_id')
         plan_id = session['metadata'].get('plan_id')
 
-        logger.info(f"Processing session for user: {client_reference_id}, plan_id: {plan_id}")
-
         try:
             user = User.objects.get(username=client_reference_id)
             plan = Plan.objects.get(id=plan_id)
 
-            # Create or update subscription
+            # Create or update subscription and mark it as active
             subscription, created = Subscription.objects.get_or_create(
                 user=user,
                 plan=plan,
                 defaults={
                     'stripe_subscription_id': session['subscription'],
                     'start_date': timezone.now(),
-                    'status': 'active'  # Make sure status is set to 'active'
+                    'status': 'active'  # Make sure the status is set to active
                 }
             )
 
-            logger.info(f"Subscription {'created' if created else 'updated'} for user: {user.username}")
-
-            # Set the status to 'active' even if the subscription already exists
+            # Set status to active if not already
             if not created:
                 subscription.status = 'active'
                 subscription.end_date = timezone.now() + timedelta(days=plan.duration_in_months * 30)

@@ -18,10 +18,16 @@ class PlanAdmin(admin.ModelAdmin):
     list_per_page = 25
 
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'plan', 'start_date', 'end_date')
-    list_display_links = ('id', 'plan')
-    search_fields = ('plan',)
-    list_per_page = 25
+    list_display = ('id', 'user', 'plan', 'start_date', 'end_date', 'status')  # Added 'status' to list_display
+    list_display_links = ('id', 'plan')  # Allow linking to plan from id and plan
+    search_fields = ('plan__name', 'user__username')  # Allow searching by plan name and user
+    list_filter = ('status',)  # Add filter by subscription status (active, canceled, etc.)
+    list_per_page = 25  # Pagination
+
+    def get_queryset(self, request):
+        # Override the default queryset to only show active subscriptions by default
+        qs = super().get_queryset(request)
+        return qs.filter(status='active')
     
 
 admin.site.register(Service, ServiceAdmin) 
