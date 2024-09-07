@@ -22,7 +22,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECRET_KEY = 'django-insecure-8$@5^1++h3^b_5wu&omho*1%)l!rmpn%r6o0x-&8p4x7z08!bk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = "true"
+DEBUG = False
 
 ALLOWED_HOSTS = ['buzz4less.onrender.com', 'localhost', '127.0.0.1', 'www.buzzforless.com']
 
