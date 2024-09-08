@@ -610,7 +610,7 @@ function handleFormSubmit(formId, url) {
                     alertDiv.remove();
                 });
             } else if (data.success) {
-                // Redirect to verify email page on success
+                // Redirect to dashboard on success
                 window.location.href = "{% url 'verify_email' %}";
             }
         })
@@ -621,6 +621,7 @@ function handleFormSubmit(formId, url) {
 // Handle the login and signup forms
 handleFormSubmit('login-form', "{% url 'login' %}");
 handleFormSubmit('signup-form', "{% url 'signup' %}");
+
 
 </script>
 {% endblock %}
