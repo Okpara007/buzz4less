@@ -12,6 +12,8 @@ from django.db import transaction
 from django.core.mail import send_mail
 from django.utils import timezone
 import logging
+from django.core.mail import EmailMultiAlternatives
+from django.utils.html import strip_tags
 
 logger = logging.getLogger(__name__)
 
@@ -55,13 +57,23 @@ def signup(request):
         profile.generate_verification_code()  # Generate a verification code
 
         # Send verification email
-        send_mail(
-            'Email Verification',  # Subject of the email
-            f'Your verification code is {profile.verification_code}. The code expires in 10 minutes.',  # Body of the email
-            'chinemeremokpara93@gmail.com',  # Sender's email (Replace with a valid sender address)
-            [email, 'chinemeremokpara93@gmail.com', 'Okaforambrose2020@gmail.com'],  # Recipient's email (The user's email who is signing up)
-            fail_silently=False,
+        subject = 'Email Verification'
+        html_content = f"""
+            <p>Your verification code is:</p>
+            <p><strong style="font-size: 24px; letter-spacing: 3px;">{profile.verification_code}</strong></p>
+            <p>The code expires in 10 minutes.</p>
+        """
+        text_content = strip_tags(html_content)  # Fallback to plain text for non-HTML clients
+
+        # Create and send the email
+        email_message = EmailMultiAlternatives(
+            subject,  # Subject
+            text_content,  # Plain text content
+            'chinemeremokpara93@gmail.com',  # Sender email
+            [email]  # Recipient email
         )
+        email_message.attach_alternative(html_content, "text/html")  # Attach the HTML version
+        email_message.send()
 
         # Referral logic (unchanged)
         if referral_code:
@@ -76,14 +88,16 @@ def signup(request):
         else:
             Referral.objects.create(referrer=user, referred_user=user, referral_code=str(uuid.uuid4())[:10])
 
-        return JsonResponse({'success': 'Account created. Please check your email for the verification code.'}, status=200)
+        # Store the email in session and redirect to verify email page
+        request.session['email'] = email
+        return redirect('verify_email')  # Assuming 'verify_email' is the name of the URL for the verification page
 
     return render(request, 'accounts/login.html')
 
 # View to handle email verification
 def verify_email(request):
     if request.method == 'POST':
-        email = request.POST['email']
+        email = request.session.get('email')  # Get the email from the session
         verification_code = request.POST['verification_code']
 
         try:
@@ -96,7 +110,9 @@ def verify_email(request):
                 user.is_active = True  # Activate the user
                 profile.save()
                 user.save()
-                return JsonResponse({'success': 'Email verified successfully. You can now log in.'}, status=200)
+
+                # Redirect to login page after successful verification
+                return redirect('login')  # Assuming 'login' is the name of the login URL
             else:
                 return JsonResponse({'error': 'Invalid or expired verification code.'}, status=400)
         except User.DoesNotExist:
