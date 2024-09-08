@@ -611,7 +611,7 @@ function handleFormSubmit(formId, url) {
                 });
             } else if (data.success) {
                 // Redirect to dashboard on success
-                window.location.href = "{% url 'dashboard' %}";
+                window.location.href = "{% url 'verify_email' %}";
             }
         })
         .catch(error => console.error('Error:', error));
