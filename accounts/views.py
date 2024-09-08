@@ -57,30 +57,31 @@ def signup(request):
         profile = Profile.objects.create(user=user)
         profile.generate_verification_code()  # Generate a verification code
 
-       # Generate the verification URL with the email and code as query parameters
-        verification_link = f"https://www.buzzforless.com/accounts/verify-email/?email={email}&code={profile.verification_code}"
+        # Generate the verification URL with the code as a query parameter
+        verification_url = request.build_absolute_uri(
+            reverse('verify_email') + f'?code={profile.verification_code}'
+        )
 
-        # HTML content for the email
+        # Send verification email
         subject = 'Email Verification'
         html_content = f"""
             <p>Your verification code is:</p>
             <p><strong style="font-size: 24px; letter-spacing: 3px;">{profile.verification_code}</strong></p>
             <p>The code expires in 10 minutes.</p>
             <p>Please click the button below to verify your email:</p>
-            <a href="{verification_link}" 
+            <a href="https://www.buzzforless.com/accounts/verify-email/" 
             style="background-color: #16d5ff; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify Email</a>
         """
         text_content = strip_tags(html_content)  # Fallback to plain text for non-HTML clients
 
-        # Send the email with both HTML and plain text
-        email_message = EmailMultiAlternatives(
+        email = EmailMultiAlternatives(
             subject,  # Subject
             text_content,  # Plain text content (fallback)
             'chinemeremokpara93@gmail.com',  # Sender email
             [email]  # Recipient email
         )
-        email_message.attach_alternative(html_content, "text/html")  # Attach the HTML version
-        email_message.send()
+        email.attach_alternative(html_content, "text/html")  # Attach the HTML version
+        email.send()
 
         # Referral logic (unchanged)
         if referral_code:
@@ -119,7 +120,7 @@ def verify_email(request):
                 user.save()
 
                 # Redirect to login page after successful verification
-                return redirect('login')
+                return redirect('login')  # Assuming 'login' is the name of the login URL
             else:
                 return JsonResponse({'error': 'Invalid or expired verification code.'}, status=400)
         except User.DoesNotExist:
