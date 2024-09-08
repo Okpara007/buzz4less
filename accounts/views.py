@@ -96,6 +96,7 @@ def signup(request):
     return render(request, 'accounts/login.html')
 
 
+
 # View to handle email verification
 def verify_email(request):
     if request.method == 'POST':
