@@ -63,23 +63,25 @@ def signup(request):
         )
 
         # Send verification email
-        subject = 'Verify Your Email Address'
+        subject = 'Email Verification'
         html_content = f"""
-            <p>Thank you for signing up! Please verify your email by clicking the button below:</p>
-            <a href="{verification_url}" style="padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">Verify Email</a>
-            <p>Or, use the code: <strong>{profile.verification_code}</strong> on the verification page. The code expires in 10 minutes.</p>
+            <p>Your verification code is:</p>
+            <p><strong style="font-size: 24px; letter-spacing: 3px;">{profile.verification_code}</strong></p>
+            <p>The code expires in 10 minutes.</p>
+            <p>Please click the button below to verify your email:</p>
+            <a href="https://www.buzzforless.com/accounts/verify-email/" 
+            style="background-color: #16d5ff; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify Email</a>
         """
         text_content = strip_tags(html_content)  # Fallback to plain text for non-HTML clients
 
-        email_message = EmailMultiAlternatives(
+        email = EmailMultiAlternatives(
             subject,  # Subject
             text_content,  # Plain text content (fallback)
-            'chinemeremokpara93@gmail.com',  # Sender's email
-            [email]  # Recipient's email
+            'chinemeremokpara93@gmail.com',  # Sender email
+            [email]  # Recipient email
         )
-        email_message.attach_alternative(html_content, "text/html")  # Attach the HTML version
-
-        email_message.send()
+        email.attach_alternative(html_content, "text/html")  # Attach the HTML version
+        email.send()
 
         # Referral logic (unchanged)
         if referral_code:
