@@ -57,12 +57,18 @@ def signup(request):
         profile = Profile.objects.create(user=user)
         profile.generate_verification_code()  # Generate a verification code
 
+        # Generate the verification URL with the email and code as query parameters
+        verification_link = f"https://www.buzzforless.com/accounts/verify-email/?email={email}&code={profile.verification_code}"
+
         # HTML content for the email
         subject = 'Email Verification'
         html_content = f"""
             <p>Your verification code is:</p>
             <p><strong style="font-size: 24px; letter-spacing: 3px;">{profile.verification_code}</strong></p>
             <p>The code expires in 10 minutes.</p>
+            <p>Please click the button below to verify your email:</p>
+            <a href="{verification_link}" 
+            style="background-color: #16d5ff; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify Email</a>
         """
         text_content = strip_tags(html_content)
 
@@ -91,10 +97,8 @@ def signup(request):
 
         # Store the email in session and redirect to verify email page
         request.session['email'] = email  # Store email in session for later use
-        return redirect('verify_email')  # Redirect to verify_email URL name
-
+        return JsonResponse({'success': 'Account created successfully.'})  # Send success response
     return render(request, 'accounts/login.html')
-
 
 
 # View to handle email verification
