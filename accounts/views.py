@@ -4,21 +4,19 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
-from .models import Referral, Profile, Withdrawal
-from services.models import Subscription, Plan
+from .models import Referral
+from .models import Withdrawal
+from services.models import Subscription
+from services.models import Plan
 from django.db.models import Sum
 import uuid
 from django.db import transaction
 from django.core.mail import send_mail
 from django.utils import timezone
 import logging
-from django.core.mail import EmailMultiAlternatives
-from django.utils.html import strip_tags
-from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
-# Function to generate a unique referral code
 def generate_referral_code():
     while True:
         code = str(uuid.uuid4()).replace("-", "")[:10]
@@ -28,6 +26,7 @@ def generate_referral_code():
 @transaction.atomic
 def signup(request):
     if request.method == 'POST':
+        # Collect data from the form
         full_name = request.POST['full_name']
         username = request.POST['username']
         email = request.POST['email']
@@ -48,98 +47,43 @@ def signup(request):
         if User.objects.filter(email=email).exists():
             return JsonResponse({'error': 'Email is already registered.'}, status=400)
 
-        # Create user with inactive status (awaiting email verification)
+        # Create the user
         user = User.objects.create_user(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
-        user.is_active = False  # Deactivate user until email verification
-        user.save()
 
-        # Create a Profile for email verification
-        profile = Profile.objects.create(user=user)
-        profile.generate_verification_code()  # Generate a verification code
-
-        # Generate the verification URL with the code as a query parameter
-        verification_url = request.build_absolute_uri(
-            reverse('verify_email') + f'?code={profile.verification_code}'
-        )
-
-        # Send verification email
-        subject = 'Verify Your Email Address'
-        html_content = f"""
-            <p>Thank you for signing up! Please verify your email by clicking the button below:</p>
-            <a href="{verification_url}" style="padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">Verify Email</a>
-            <p>Or, use the code: <strong>{profile.verification_code}</strong> on the verification page. The code expires in 10 minutes.</p>
-        """
-        text_content = strip_tags(html_content)  # Fallback to plain text for non-HTML clients
-
-        email_message = EmailMultiAlternatives(
-            subject,  # Subject
-            text_content,  # Plain text content (fallback)
-            'chinemeremokpara93@gmail.com',  # Sender's email
-            [email]  # Recipient's email
-        )
-        email_message.attach_alternative(html_content, "text/html")  # Attach the HTML version
-
-        email_message.send()
-
-        # Referral logic (unchanged)
+        # Handle referral logic
         if referral_code:
             try:
+                # Fetch the referral entry using the referral code
                 referral_entry = Referral.objects.get(referral_code=referral_code)
-                referrer = referral_entry.referred_user
+                referrer = referral_entry.referred_user  # Ensure this points to the correct referred_user
 
+                # Ensure no duplicate entry for referred_user
                 if not Referral.objects.filter(referred_user=user).exists():
-                    Referral.objects.create(referrer=referrer, referred_user=user, referral_code=str(uuid.uuid4())[:10])
+                    # Assign referrer and generate a new referral code for the new user
+                    Referral.objects.create(referrer=referrer, referred_user=user, referral_code=generate_referral_code())
             except Referral.DoesNotExist:
+                # Handle invalid referral code case here if needed
                 return JsonResponse({'error': 'Invalid referral code.'}, status=400)
         else:
-            Referral.objects.create(referrer=user, referred_user=user, referral_code=str(uuid.uuid4())[:10])
+            # Create a self-referral entry if no referral code is provided
+            Referral.objects.create(referrer=user, referred_user=user, referral_code=generate_referral_code())
 
-        # Store the email in session and redirect to verify email page
-        request.session['email'] = email
-        return redirect('verify_email')  # Assuming 'verify_email' is the name of the URL for the verification page
+        # Log in the user immediately after signup
+        auth_login(request, user)
+        return JsonResponse({'success': 'Account created successfully and logged in.'}, status=200)
 
     return render(request, 'accounts/login.html')
 
-# View to handle email verification
-def verify_email(request):
-    if request.method == 'POST':
-        email = request.session.get('email')  # Get the email from the session
-        verification_code = request.POST['verification_code']
 
-        try:
-            user = User.objects.get(email=email)
-            profile = Profile.objects.get(user=user)
-
-            # Check if the verification code matches and hasn't expired
-            if profile.verification_code == verification_code and timezone.now() < profile.verification_code_expires_at:
-                profile.is_verified = True
-                user.is_active = True  # Activate the user
-                profile.save()
-                user.save()
-
-                # Redirect to login page after successful verification
-                return redirect('login')  # Assuming 'login' is the name of the login URL
-            else:
-                return JsonResponse({'error': 'Invalid or expired verification code.'}, status=400)
-        except User.DoesNotExist:
-            return JsonResponse({'error': 'No account found with this email.'}, status=400)
-
-    return render(request, 'accounts/verify_email.html')
-
-# Modified login view with email verification check
 def login(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
 
+        # Authenticate the user
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            # Check if the user's email is verified before logging in
-            profile = Profile.objects.get(user=user)
-            if not profile.is_verified:
-                return JsonResponse({'error': 'Please verify your email before logging in.'}, status=400)
-
             auth_login(request, user)
             return JsonResponse({'success': 'Logged in successfully.'}, status=200)
         else:
@@ -154,6 +98,7 @@ def logout(request):
 @login_required
 def dashboard(request):
     user = request.user
+    # Fetch only active subscriptions and order by start date (newest first)
     subscriptions = Subscription.objects.filter(user=user, status='active').order_by('-start_date')
 
     context = {
@@ -161,15 +106,23 @@ def dashboard(request):
     }
     return render(request, 'accounts/dashboard.html', context)
 
+
+
 @login_required
 def referral(request):
     user = request.user
+    
+    # Get the referral entry for the current user
     referral = Referral.objects.filter(referred_user=user).first()
-
+    
+    # If no referral entry exists, create a self-referral entry
     if not referral:
         referral = Referral.objects.create(referrer=user, referred_user=user, referral_code=generate_referral_code())
 
+    # Get the users referred by the current user
     referred_users = Referral.objects.filter(referrer=user).exclude(referred_user=user)
+    
+    # Calculate total earnings
     total_earnings = referred_users.aggregate(Sum('earnings'))['earnings__sum'] or 0.00
 
     context = {
@@ -182,6 +135,7 @@ def referral(request):
 @login_required
 def withdrawal(request):
     if request.method == 'POST':
+        # Extract data from POST request
         name = request.POST.get('name')
         email = request.POST.get('email')
         phone = request.POST.get('phone', None)
@@ -189,20 +143,25 @@ def withdrawal(request):
         amount = request.POST.get('number')
 
         try:
+            # Convert the amount to a float for comparison
             amount = float(amount)
         except ValueError:
+            # Handle the case where amount is not a valid number
             messages.error(request, 'Invalid amount entered. Please enter a valid number.')
             return redirect('referral')
 
+        # Calculate total earnings
         total_earnings = Referral.objects.filter(referrer=request.user).aggregate(Sum('earnings'))['earnings__sum'] or 0.00
 
+        # Validate the minimum withdrawal amount
         if amount < 10:
             messages.error(request, 'The minimum amount to withdraw is $10. Please enter a valid amount.')
-            return redirect('referral')
+            return redirect('referral')  # Redirect back to the form
 
+        # Validate that the withdrawal amount does not exceed total earnings
         if amount > total_earnings:
             messages.error(request, 'You cannot withdraw more than your total earnings. Please enter a valid amount.')
-            return redirect('referral')
+            return redirect('referral')  # Redirect back to the form
 
         if payment_method == 'paypal':
             paypal_username = request.POST.get('paypal_username')
@@ -232,12 +191,14 @@ def withdrawal(request):
 
         new_withdrawal.save()
 
+        # Prepare and send the email notification
         email_subject = f'{new_withdrawal.payment_method} withdrawal'
-        admin_url = 'https://127.0.0.1:8000/admin/'
+        admin_url = 'https://127.0.0.1:8000/admin/'  # Local admin URL
         email_body = (
             f'{name}.\n'
             f'There has been a withdrawal request of ${new_withdrawal.amount}. Sign into the admin panel for more info.\n'
             f'Admin Panel: {admin_url}.\n'
+            # f'{new_withdrawal.payment_method}'
         )
 
         send_mail(
@@ -248,7 +209,8 @@ def withdrawal(request):
             fail_silently=False
         )
 
+
         messages.success(request, 'Your withdrawal request has been submitted successfully. We will process it shortly.')
         return redirect('referral')
 
-    return render(request, 'accounts/referral.html')
+    return render(request, 'accounts/referral.html')  # This should be the correct template
