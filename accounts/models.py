@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+import uuid
 
 class Referral(models.Model):
     referrer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='referrals')
@@ -27,7 +29,7 @@ class Withdrawal(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField()
     phone = models.CharField(max_length=15, null=True, blank=True)
-    payment_method = models.CharField(max_length=20, choices=[('paypal', 'PayPal'), ('crypto', 'Crypto')], default='paypal')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='paypal')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -38,6 +40,23 @@ class Withdrawal(models.Model):
     crypto_coin = models.CharField(max_length=50, null=True, blank=True)
     crypto_wallet_address = models.CharField(max_length=255, null=True, blank=True)
 
-
     def __str__(self):
         return f"Withdrawal Request by {self.user.username} - {self.payment_method} - ${self.amount} USD"
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    verification_code = models.CharField(max_length=6, blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
+    verification_code_expires_at = models.DateTimeField(blank=True, null=True)
+
+    def generate_verification_code(self):
+        self.verification_code = str(uuid.uuid4()).replace('-', '')[:6].upper()  # Generates a 6-character code
+        self.verification_code_expires_at = timezone.now() + timezone.timedelta(minutes=10)  # Code expires in 10 mins
+        self.save()
+
+    def __str__(self):
+        return f"Profile for {self.user.username}"
+
+    def is_verification_code_valid(self):
+        # Check if the code is valid and not expired
+        return self.verification_code and timezone.now() < self.verification_code_expires_at

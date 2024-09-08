@@ -11,7 +11,7 @@ class ServiceAdmin(admin.ModelAdmin):
     list_per_page = 25
 
 class PlanAdmin(admin.ModelAdmin):
-    list_display = ('id', 'service', 'duration_in_months', 'price')
+    list_display = ('id', 'service', 'name', 'duration_in_months', 'price')
     list_display_links = ('id', 'service')
     list_filter = ('service',)
     search_fields = ('service', 'duration_in_months', 'price')
