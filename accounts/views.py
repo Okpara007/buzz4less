@@ -152,17 +152,14 @@ def login(request):
             # Check if the user's email is verified before logging in
             profile = Profile.objects.get(user=user)
             if not profile.is_verified:
-                # Redirect to the verify email page if the email is not verified
-                return redirect('verify_email')  
+                return JsonResponse({'error': 'Please verify your email before logging in.'}, status=400)
 
-            # Log the user in and redirect to the dashboard if the email is verified
             auth_login(request, user)
-            return redirect('dashboard')
+            return JsonResponse({'success': 'Logged in successfully.'}, status=200)
         else:
             return JsonResponse({'error': 'Invalid username or password.'}, status=400)
 
     return render(request, 'accounts/login.html')
-
 
 def logout(request):
     auth_logout(request)
