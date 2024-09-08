@@ -56,10 +56,10 @@ def signup(request):
 
         # Send verification email
         send_mail(
-            'Email Verification',
-            f'Your verification code is {profile.verification_code}. The code expires in 10 minutes.',
-            ['chinemeremokpara93@gmail.com', 'Okaforambrose2020@gmail.com'],  # Replace with your sender email
-            [email],
+            'Email Verification',  # Subject of the email
+            f'Your verification code is {profile.verification_code}. The code expires in 10 minutes.',  # Body of the email
+            'chinemeremokpara93@gmail.com',  # Sender's email (Replace with a valid sender address)
+            [email, 'chinemeremokpara93@gmail.com', 'Okaforambrose2020@gmail.com'],  # Recipient's email (The user's email who is signing up)
             fail_silently=False,
         )
 
