@@ -97,7 +97,8 @@ def signup(request):
 
         # Store the email in session and redirect to verify email page
         request.session['email'] = email  # Store email in session for later use
-        return JsonResponse({'success': 'Account created successfully.'})  # Send success response
+        return redirect('verify_email')  # Redirect to verify_email URL name
+
     return render(request, 'accounts/login.html')
 
 
