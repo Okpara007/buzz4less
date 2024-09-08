@@ -125,7 +125,7 @@ def verify_email(request):
         if profile.verification_code == verification_code and timezone.now() < profile.verification_code_expires_at:
             # If valid, mark profile as verified and activate the user
             profile.is_verified = True
-            user.is_active = True
+            user.is_active = True  # Activate the user account
             profile.save()
             user.save()
 
@@ -152,14 +152,17 @@ def login(request):
             # Check if the user's email is verified before logging in
             profile = Profile.objects.get(user=user)
             if not profile.is_verified:
-                return JsonResponse({'error': 'Please verify your email before logging in.'}, status=400)
+                # Redirect to the verify email page if the email is not verified
+                return redirect('verify_email')  
 
+            # Log the user in and redirect to the dashboard if the email is verified
             auth_login(request, user)
-            return JsonResponse({'success': 'Logged in successfully.'}, status=200)
+            return redirect('dashboard')
         else:
             return JsonResponse({'error': 'Invalid username or password.'}, status=400)
 
     return render(request, 'accounts/login.html')
+
 
 def logout(request):
     auth_logout(request)
