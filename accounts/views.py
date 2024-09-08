@@ -125,7 +125,7 @@ def verify_email(request):
         if profile.verification_code == verification_code and timezone.now() < profile.verification_code_expires_at:
             # If valid, mark profile as verified and activate the user
             profile.is_verified = True
-            user.is_active = True  # Activate the user account
+            user.is_active = True
             profile.save()
             user.save()
 
