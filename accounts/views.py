@@ -14,6 +14,7 @@ from django.utils import timezone
 import logging
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -56,23 +57,28 @@ def signup(request):
         profile = Profile.objects.create(user=user)
         profile.generate_verification_code()  # Generate a verification code
 
+        # Generate the verification URL with the code as a query parameter
+        verification_url = request.build_absolute_uri(
+            reverse('verify_email') + f'?code={profile.verification_code}'
+        )
+
         # Send verification email
-        subject = 'Email Verification'
+        subject = 'Verify Your Email Address'
         html_content = f"""
-            <p>Your verification code is:</p>
-            <p><strong style="font-size: 24px; letter-spacing: 3px;">{profile.verification_code}</strong></p>
-            <p>The code expires in 10 minutes.</p>
+            <p>Thank you for signing up! Please verify your email by clicking the button below:</p>
+            <a href="{verification_url}" style="padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">Verify Email</a>
+            <p>Or, use the code: <strong>{profile.verification_code}</strong> on the verification page. The code expires in 10 minutes.</p>
         """
         text_content = strip_tags(html_content)  # Fallback to plain text for non-HTML clients
 
-        # Create and send the email
         email_message = EmailMultiAlternatives(
             subject,  # Subject
-            text_content,  # Plain text content
-            'chinemeremokpara93@gmail.com',  # Sender email
-            [email]  # Recipient email
+            text_content,  # Plain text content (fallback)
+            'chinemeremokpara93@gmail.com',  # Sender's email
+            [email]  # Recipient's email
         )
         email_message.attach_alternative(html_content, "text/html")  # Attach the HTML version
+
         email_message.send()
 
         # Referral logic (unchanged)
