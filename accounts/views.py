@@ -70,12 +70,12 @@ def signup(request):
             <a href="{verification_link}" 
             style="background-color: #16d5ff; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify Email</a>
         """
-        text_content = strip_tags(html_content)  # Fallback to plain text for non-HTML clients
+        text_content = strip_tags(html_content)
 
-        # Send the email with both HTML and plain text
+        # Send the email
         email_message = EmailMultiAlternatives(
             subject,  # Subject
-            text_content,  # Plain text content (fallback)
+            text_content,  # Plain text content
             'chinemeremokpara93@gmail.com',  # Sender email
             [email]  # Recipient email
         )
@@ -96,10 +96,11 @@ def signup(request):
             Referral.objects.create(referrer=user, referred_user=user, referral_code=str(uuid.uuid4())[:10])
 
         # Store the email in session and redirect to verify email page
-        request.session['email'] = email
-        return redirect('verify_email')
+        request.session['email'] = email  # Store email in session for later use
+        return redirect('verify_email')  # Redirect to verify_email URL name
 
     return render(request, 'accounts/login.html')
+
 
 # View to handle email verification
 def verify_email(request):
