@@ -57,31 +57,30 @@ def signup(request):
         profile = Profile.objects.create(user=user)
         profile.generate_verification_code()  # Generate a verification code
 
-        # Generate the verification URL with the code as a query parameter
-        verification_url = request.build_absolute_uri(
-            reverse('verify_email') + f'?code={profile.verification_code}'
-        )
+       # Generate the verification URL with the email and code as query parameters
+        verification_link = f"https://www.buzzforless.com/accounts/verify-email/?email={email}&code={profile.verification_code}"
 
-        # Send verification email
+        # HTML content for the email
         subject = 'Email Verification'
         html_content = f"""
             <p>Your verification code is:</p>
             <p><strong style="font-size: 24px; letter-spacing: 3px;">{profile.verification_code}</strong></p>
             <p>The code expires in 10 minutes.</p>
             <p>Please click the button below to verify your email:</p>
-            <a href="https://www.buzzforless.com/accounts/verify-email/" 
+            <a href="{verification_link}" 
             style="background-color: #16d5ff; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Verify Email</a>
         """
         text_content = strip_tags(html_content)  # Fallback to plain text for non-HTML clients
 
-        email = EmailMultiAlternatives(
+        # Send the email with both HTML and plain text
+        email_message = EmailMultiAlternatives(
             subject,  # Subject
             text_content,  # Plain text content (fallback)
             'chinemeremokpara93@gmail.com',  # Sender email
             [email]  # Recipient email
         )
-        email.attach_alternative(html_content, "text/html")  # Attach the HTML version
-        email.send()
+        email_message.attach_alternative(html_content, "text/html")  # Attach the HTML version
+        email_message.send()
 
         # Referral logic (unchanged)
         if referral_code:
@@ -105,27 +104,40 @@ def signup(request):
 # View to handle email verification
 def verify_email(request):
     if request.method == 'POST':
-        email = request.session.get('email')  # Get the email from the session
-        verification_code = request.POST['verification_code']
+        # Ensure that the 'email' is retrieved from the session
+        email = request.session.get('email')
+        verification_code = request.POST.get('verification_code')
+
+        # Check if the email exists in the session, and if the verification code is provided
+        if email is None or verification_code is None:
+            return JsonResponse({'error': 'Verification details are missing.'}, status=400)
 
         try:
+            # Retrieve the user based on the email stored in session
             user = User.objects.get(email=email)
             profile = Profile.objects.get(user=user)
-
-            # Check if the verification code matches and hasn't expired
-            if profile.verification_code == verification_code and timezone.now() < profile.verification_code_expires_at:
-                profile.is_verified = True
-                user.is_active = True  # Activate the user
-                profile.save()
-                user.save()
-
-                # Redirect to login page after successful verification
-                return redirect('login')  # Assuming 'login' is the name of the login URL
-            else:
-                return JsonResponse({'error': 'Invalid or expired verification code.'}, status=400)
         except User.DoesNotExist:
             return JsonResponse({'error': 'No account found with this email.'}, status=400)
+        except Profile.DoesNotExist:
+            return JsonResponse({'error': 'Profile not found for this account.'}, status=400)
 
+        # Check if the verification code matches and hasn't expired
+        if profile.verification_code == verification_code and timezone.now() < profile.verification_code_expires_at:
+            # If valid, mark profile as verified and activate the user
+            profile.is_verified = True
+            user.is_active = True
+            profile.save()
+            user.save()
+
+            # Clear the session email after successful verification
+            request.session.pop('email', None)
+
+            # Redirect to login page after successful verification
+            return redirect('login')
+        else:
+            return JsonResponse({'error': 'Invalid or expired verification code.'}, status=400)
+
+    # Render the email verification form if it's not a POST request
     return render(request, 'accounts/verify_email.html')
 
 # Modified login view with email verification check
