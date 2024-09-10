@@ -64,7 +64,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h2>Welcome {{ user.first_name }}!</h2>
+                <h2>Welcome {{ user.first_name }}! <span><p style="text-decoration: underline; color:#16d5ff"> edit profile?</p></span></h2>
                 {% if subscriptions %}
                     <p style="color: black;">Here are your Subscriptions:</p>
                     <table class="table">
@@ -94,7 +94,7 @@
                         </tbody>
                     </table>
                 {% else %}
-                    <p style="color: black;">You currently do not have any subscriptions.</p>
+                    <p style="color: black;">You currently do not have any subscriptions, subscriptions may take some time to be displayed. </p>
                 {% endif %}
             </div>
         </div>
