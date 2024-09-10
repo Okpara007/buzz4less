@@ -180,7 +180,3 @@ cloudinary.config(
     api_key=CLOUDINARY_STORAGE['API_KEY'],
     api_secret=CLOUDINARY_STORAGE['API_SECRET']
 )
-
-# Add session settings for secure handling in production
-SESSION_COOKIE_SECURE = True  # Ensures cookies are only sent via HTTPS
-SESSION_COOKIE_DOMAIN = '.buzzforless.com'  # For sharing session across subdomains
