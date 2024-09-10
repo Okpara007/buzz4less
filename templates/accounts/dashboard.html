@@ -28,6 +28,11 @@
     border-radius: 0; 
 }
 
+.edit-profile:hover {
+    color: #16d5ff;
+    text-decoration: underline;
+}
+
 @media (max-width: 768px) {
     #showcase-inner, #bc, #dashboard {
       padding: 1rem 0.5rem; 
@@ -55,6 +60,7 @@
                         <i style="color: #16d5ff;" class="fas fa-home"></i> Home</a>
                 </li>
                 <li class="breadcrumb-item active"> Dashboard</li>
+                <li class="breadcrumb-item edit-profile"> <a href="{% url 'profile' %}">Edit Profile?</a></li>
             </ol>
         </nav>
     </div>
@@ -64,7 +70,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h2>Welcome {{ user.first_name }}! <span><p style="text-decoration: underline; color:#16d5ff"> edit profile?</p></span></h2>
+                <h2>Welcome {{ user.first_name }}!</h2>
                 {% if subscriptions %}
                     <p style="color: black;">Here are your Subscriptions:</p>
                     <table class="table">
@@ -94,7 +100,7 @@
                         </tbody>
                     </table>
                 {% else %}
-                    <p style="color: black;">You currently do not have any subscriptions, subscriptions may take some time to be displayed. </p>
+                    <p style="color: black;">You currently do not have any subscriptions. Subscriptions may take some time to be displayed.</p>
                 {% endif %}
             </div>
         </div>
