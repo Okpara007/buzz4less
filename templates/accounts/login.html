@@ -610,7 +610,7 @@ function handleFormSubmit(formId, url) {
                     alertDiv.remove();
                 });
             } else if (data.success) {
-                // Redirect to dashboard on success
+                // Redirect to the dashboard on success
                 window.location.href = "{% url 'dashboard' %}";
             }
         })
