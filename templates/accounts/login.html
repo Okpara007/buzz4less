@@ -464,7 +464,17 @@
     .fade-out.hidden {
         opacity: 0;
     }
+
+    .forgot-password-link {
+        color: #5995fd;
+        text-decoration: none;
+        font-weight: 600;
+        margin-top: 10px;
+    }
     
+    .forgot-password-link:hover {
+        color: #4d84e2;
+    }    
 
 </style>
 
@@ -490,6 +500,9 @@
                     <input type="password" name="password" placeholder="Password" aria-label="Password" required>
                 </div>
                 <button type="submit" class="btn solid">Login</button>
+                
+                <!-- Add the Forgot Password Link Below -->
+                <p><a href="{% url 'password_reset' %}" class="forgot-password-link">Forgot your password?</a></p>
             </form>
 
             <!-- Sign Up Form -->
