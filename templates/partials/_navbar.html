@@ -71,8 +71,15 @@
                         <input type="hidden">
                     </form>
 
-                    <a href="{% url 'profile' %}" class="nav-link">Profile</a>
-
+                    <div class="h-100 d-lg-inline-flex align-items-center d-none">
+                        <a class="btn btn-square rounded-circle bg-light text-primary me-2" href="{% url 'profile' %}" 
+                        {% if 'profile' in request.path %} 
+                        class="nav-item nav-link active" 
+                        {% else %} 
+                            class="nav-item nav-link"
+                        {% endif %}><i class="fa-regular fa-circle-user"></i></a>
+                    </div>
+                    
                 {% else %}
                     <a href="{% url 'login' %}" 
                     {% if 'login' in request.path %} 
