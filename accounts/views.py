@@ -14,6 +14,7 @@ import uuid
 from django.db import transaction
 from django.core.mail import send_mail
 from django.utils import timezone
+import logging
 
 logger = logging.getLogger(__name__)
 
