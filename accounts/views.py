@@ -85,17 +85,11 @@ def login(request):
 
         if user is not None:
             auth_login(request, user)
-            # Check if the request is AJAX
-            if request.is_ajax():
-                return JsonResponse({'success': 'Logged in successfully.'}, status=200)
-            else:
-                # Redirect to the dashboard if not AJAX
-                return redirect('dashboard')
+            return JsonResponse({'success': 'Logged in successfully.'}, status=200)
         else:
             return JsonResponse({'error': 'Invalid username or password.'}, status=400)
 
     return render(request, 'accounts/login.html')
-
 
 def logout(request):
     auth_logout(request)
