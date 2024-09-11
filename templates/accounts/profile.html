@@ -6,106 +6,152 @@
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10">
-            <h2 style="font-weight: 510;" class="mb-3">Update Your Profile</h2>
-            
-            <!-- Full Name Section -->
-            <div class="form-section">
-                <h4>Full Name</h4>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="first_name" class="form-label">First Name</label>
-                        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ profile_form.first_name.value }}" placeholder="Enter your first name">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="last_name" class="form-label">Last Name</label>
-                        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ profile_form.last_name.value }}" placeholder="Enter your last name">
-                    </div>
-                </div>
-            </div>
+            <h2 class="mb-3">Update Your Profile</h2>
 
-            <!-- Contact Email Section -->
-            <div class="form-section">
-                <h4>Email Address</h4>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ profile_form.email.value }}" placeholder="Enter your email">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Username Section -->
-            <div class="form-section">
-                <h4>Username</h4>
-                <div class="row">
-                    <div class="col-12 mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" value="{{ profile_form.username.value }}" placeholder="Enter your username">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Password Section -->
-            <div class="form-section">
-                <h4>Password</h4>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="current-password" class="form-label">Current Password</label>
-                        <div class="password-toggle">
-                            <input type="password" class="form-control" id="id_old_password" name="old_password" placeholder="Enter current password">
-                            <span class="toggle-password" onclick="togglePasswordVisibility('id_old_password')">
-                                <i class="fas fa-eye"></i>
-                            </span>
+            <form method="POST">
+                {% csrf_token %}
+                <!-- Full Name Section -->
+                <div class="form-section">
+                    <h4>Full Name</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ profile_form.first_name.label_tag }}
+                            {{ profile_form.first_name|add_class:'form-control' }}
                         </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="new-password" class="form-label">New Password</label>
-                        <div class="password-toggle">
-                            <input type="password" class="form-control" id="id_new_password1" name="new_password1" placeholder="Enter new password">
-                            <span class="toggle-password" onclick="togglePasswordVisibility('id_new_password1')">
-                                <i class="fas fa-eye"></i>
-                            </span>
+                        <div class="col-md-6 mb-3">
+                            {{ profile_form.last_name.label_tag }}
+                            {{ profile_form.last_name|add_class:'form-control' }}
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Password Confirmation Section -->
-            <div class="form-section">
-                <h4>Confirm New Password</h4>
-                <div class="row">
-                    <div class="col-12 mb-3">
-                        <label for="confirm-new-password" class="form-label">Confirm New Password</label>
-                        <div class="password-toggle">
-                            <input type="password" class="form-control" id="id_new_password2" name="new_password2" placeholder="Confirm new password">
-                            <span class="toggle-password" onclick="togglePasswordVisibility('id_new_password2')">
-                                <i class="fas fa-eye"></i>
-                            </span>
+                <!-- Contact Email Section -->
+                <div class="form-section">
+                    <h4>Email Address</h4>
+                    <div class="mb-3">
+                        {{ profile_form.email.label_tag }}
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            {{ profile_form.email|add_class:'form-control' }}
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary">Update</button>
+                <!-- Username Section -->
+                <div class="form-section">
+                    <h4>Username</h4>
+                    {{ profile_form.username.label_tag }}
+                    {{ profile_form.username|add_class:'form-control' }}
+                </div>
 
-            <!-- Display Success/Error Messages -->
+                <!-- Password Section -->
+                <div class="form-section">
+                    <h4>Password</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ password_form.old_password.label_tag }}
+                            <div class="password-toggle">
+                                {{ password_form.old_password|add_class:'form-control' }}
+                                <span class="toggle-password" onclick="togglePasswordVisibility('id_old_password')">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ password_form.new_password1.label_tag }}
+                            <div class="password-toggle">
+                                {{ password_form.new_password1|add_class:'form-control' }}
+                                <span class="toggle-password" onclick="togglePasswordVisibility('id_new_password1')">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Confirmation Section -->
+                <div class="form-section">
+                    <h4>Confirm New Password</h4>
+                    <div class="password-toggle">
+                        {{ password_form.new_password2.label_tag }}
+                        {{ password_form.new_password2|add_class:'form-control' }}
+                        <span class="toggle-password" onclick="togglePasswordVisibility('id_new_password2')">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-4">Update</button>
+            </form>
+
             {% if messages %}
-            <ul>
+            <div class="alert alert-info mt-3">
                 {% for message in messages %}
-                    <li>{{ message }}</li>
+                    {{ message }}
                 {% endfor %}
-            </ul>
+            </div>
             {% endif %}
         </div>
     </div>
 </div>
 
-<!-- Bootstrap JS and Popper.js -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Font Awesome Icons -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<!-- Styles -->
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f8f9fa;
+    }
+
+    .form-section {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    .form-section h4 {
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .form-section .form-control {
+        border-radius: 8px;
+    }
+
+    .input-group-text {
+        border-radius: 8px 0 0 8px;
+    }
+
+    .password-toggle {
+        position: relative;
+    }
+
+    .password-toggle .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        cursor: pointer;
+    }
+
+    .alert-info {
+        font-size: 1rem;
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        font-weight: 600;
+        padding: 10px 30px;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+</style>
 
 <!-- Password Toggle Script -->
 <script>
@@ -124,37 +170,4 @@
     }
 </script>
 
-<!-- Styles -->
-<style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #f8f9fa;
-    }
-    .form-section {
-        background-color: #fff;
-        border-radius: 10px;
-        padding: 30px;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 30px;
-    }
-    .form-section h4 {
-        margin-bottom: 20px;
-        font-weight: 600;
-    }
-    .form-section .form-control {
-        border-radius: 8px;
-    }
-    .form-section .input-group-text {
-        border-radius: 8px 0 0 8px;
-    }
-    .password-toggle {
-        position: relative;
-    }
-    .password-toggle .toggle-password {
-        position: absolute;
-        right: 10px;
-        top: 10px;
-        cursor: pointer;
-    }
-</style>
 {% endblock %}
