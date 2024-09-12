@@ -12,6 +12,7 @@ from datetime import timedelta
 from django.contrib.auth.models import User
 from urllib.parse import quote
 import logging
+from django.contrib.auth.decorators import login_required
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ def service(request, service_id):
     }
     return render(request, 'services/service.html', context)
 
+@login_required(login_url='/accounts/login/')  # Redirect to the login page if not authenticated
 def process_payment(request):
     if request.method == 'POST':
         plan_id = request.POST.get('plan_id')
