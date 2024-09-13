@@ -114,7 +114,7 @@ def process_payment(request):
     return redirect('service', service_id=request.POST.get('service_id'))
 
 def payment_success(request):
-    return redirect('dashboard')  # Redirect the user to their dashboard after successful payment
+    return render(request, 'services/payment_success.html')
 
 def payment_cancel(request):
     service_id = request.session.get('service_id')
