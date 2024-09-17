@@ -184,8 +184,8 @@ def withdrawal(request):
         send_mail(
             email_subject,
             email_body,
-            'chinemeremokpara93@gmail.com',
-            ['chinemeremokpara93@gmail.com', 'Okaforambrose2020@gmail.com'],
+            'noreply@buzzforless.com',
+            ['noreply@buzzforless.com', 'Okaforambrose2020@gmail.com', 'chinemeremokpara93@gmail.com'],
             fail_silently=False
         )
 
