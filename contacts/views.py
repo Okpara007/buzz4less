@@ -26,7 +26,7 @@ def contact(request):
 
         # Prepare and send the email notification
         email_subject = f'A contact has been made.'
-        admin_url = 'https://127.0.0.1:8000/admin/'  # Local admin URL
+        admin_url = 'https://buzzforless.com/admin/'  # Local admin URL
         email_body = (
             f'{name}.\n'
             f'There has been a contact. Sign into the admin panel for more info.\n'
