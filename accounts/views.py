@@ -15,6 +15,9 @@ from django.db import transaction
 from django.core.mail import send_mail
 from django.utils import timezone
 import logging
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.views import PasswordResetView
+from django.urls import reverse_lazy
 
 logger = logging.getLogger(__name__)
 
@@ -220,3 +223,20 @@ def profile(request):
     }
 
     return render(request, 'accounts/profile.html', context)
+
+class CustomPasswordResetForm(PasswordResetForm):
+    def save(self, domain_override=None,
+             subject_template_name='registration/password_reset_subject.txt',
+             email_template_name='registration/password_reset_email.html',
+             use_https=False, token_generator=None,
+             from_email='reset_account@buzzforless.com',  # Set the email here
+             request=None, html_email_template_name=None,
+             extra_email_context=None):
+        super().save(domain_override, subject_template_name,
+                     email_template_name, use_https, token_generator,
+                     from_email, request, html_email_template_name,
+                     extra_email_context)
+
+class CustomPasswordResetView(PasswordResetView):
+    form_class = CustomPasswordResetForm
+    success_url = reverse_lazy('password_reset_done')
