@@ -37,8 +37,8 @@ def contact(request):
         send_mail(
             email_subject,
             email_body,
-            'noreply@buzzforless.com',
-            [ 'noreply@buzzforless.com', 'chinemeremokpara93@gmail.com', 'Okaforambrose2020@gmail.com'],
+            'support@buzzforless.com',
+            ['chinemeremokpara93@gmail.com', 'Okaforambrose2020@gmail.com'],
             fail_silently=False
         )
 
