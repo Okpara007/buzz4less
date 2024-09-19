@@ -129,7 +129,13 @@ def cancel_subscription(request, subscription_id):
         subscription = get_object_or_404(Subscription, id=subscription_id, user=request.user, status='active')
         
         # Immediately cancel the subscription with Stripe
-        stripe.Subscription.delete(subscription.stripe_subscription_id)
+        try:
+            stripe.Subscription.delete(subscription.stripe_subscription_id)
+        except stripe.error.InvalidRequestError as e:
+            # Handle case where the subscription does not exist on Stripe
+            logger.error(f"Stripe error: {e}")
+            messages.error(request, 'Error: Unable to cancel the subscription on Stripe. It may have already been canceled or does not exist.')
+            return redirect('dashboard')
 
         # Update the subscription status in the database to 'canceled'
         subscription.status = 'canceled'
@@ -138,9 +144,17 @@ def cancel_subscription(request, subscription_id):
 
         # Render the payment_cancel.html template with the correct service_id context
         return render(request, 'services/payment_cancel.html', {'service_id': subscription.plan.service.id})  # Access service_id via plan.service.id
+
     except Subscription.DoesNotExist:
-        # If no active subscription is found, redirect or show an error
-        return redirect('/dashboard/')
+        # Handle case where no active subscription is found
+        messages.error(request, 'Subscription not found or already canceled.')
+        return redirect('dashboard')
+
+    except Exception as e:
+        # Handle any other exceptions that may occur
+        logger.error(f"Unexpected error: {e}")
+        messages.error(request, 'An unexpected error occurred while canceling your subscription. Please try again later.')
+        return redirect('dashboard')
 
 @csrf_exempt
 def stripe_webhook(request):
