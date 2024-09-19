@@ -135,7 +135,7 @@ def cancel_subscription(request, subscription_id):
         except stripe.error.InvalidRequestError as e:
             # Handle case where the subscription does not exist on Stripe
             logger.error(f"Stripe error: {e}")
-            messages.error(request, 'Error: Unable to cancel the subscription on Stripe. It may have already been canceled or does not exist.')
+            messages.error(request, 'Unable to cancel the subscription. It may have already been canceled or does not exist. Try again later, or if issue persists contact customer care')
             return redirect('dashboard')
 
         # Update the subscription status in the database to 'canceled'
