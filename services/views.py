@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from urllib.parse import quote
 import logging
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 logger = logging.getLogger(__name__)
 
