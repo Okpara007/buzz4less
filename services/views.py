@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 def index(request):
-    services = Service.objects.all().filter(is_published=True)
+    services = Service.objects.order_by('-upload_date').filter(is_published=True)
 
     paginator = Paginator(services, 6)
     page = request.GET.get('page')
