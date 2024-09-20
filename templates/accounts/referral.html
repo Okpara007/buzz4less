@@ -106,7 +106,8 @@
                 <h5 class="modal-title" id="withdrawModalLabel">Make a withdrawal</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            Service currently unavailable please try another means of payment to make withdrawal
+            <!-- <div class="modal-body">
                 <form id="withdrawForm" action="{% url 'withdrawal' %}" method="POST" onsubmit="return validateWithdrawalAmount()">
                     {% csrf_token %}
                     <input type="hidden" name="payment_method" value="paypal">
@@ -135,11 +136,6 @@
                         <label for="paypal_username" class="col-form-label">Paypal Username:</label>
                         <input type="text" name="paypal_username" class="form-control">
                     </div>
-<!-- 
-                    <div class="form-group">
-                        <label for="accountName" class="col-form-label">Account Name:</label>
-                        <input type="text" name="accountName" class="form-control">
-                    </div> -->
 
                     <div class="form-group">
                         <label for="number" class="col-form-label">Amount to Withdraw:</label>
@@ -148,7 +144,7 @@
                     <hr>
                     <input class="btn-info" style="color:#fff" type="submit" value="Send" class="btn btn-block btn-secondary">
                 </form>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>
