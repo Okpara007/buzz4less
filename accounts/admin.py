@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Referral, Withdrawal, Profile
+from .models import Referral, Withdrawal
 
 @admin.register(Referral)
 class ReferralAdmin(admin.ModelAdmin):
@@ -21,7 +21,3 @@ class ReferralAdmin(admin.ModelAdmin):
 class WithdrawalAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'email', 'phone', 'amount')
     list_display_links = ('id', 'name')
-
-@admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user',)

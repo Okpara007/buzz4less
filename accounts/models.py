@@ -41,6 +41,3 @@ class Withdrawal(models.Model):
 
     def __str__(self):
         return f"Withdrawal Request by {self.user.username} - {self.payment_method} - ${self.amount} USD"
-    
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
