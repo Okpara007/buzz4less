@@ -189,7 +189,7 @@ def withdrawal(request):
             fail_silently=False
         )
 
-        messages.success(request, 'Your withdrawal request has been submitted successfully.')
+        messages.success(request, 'Your withdrawal request has been submitted successfully. Your request will be processed within 24 hours')
         return redirect('referral')
 
     return render(request, 'accounts/referral.html')
