@@ -175,13 +175,14 @@ def stripe_webhook(request):
         logger.error("Invalid signature")
         return HttpResponse(status=400)
 
+    # Handle the 'checkout.session.completed' event from Stripe
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         client_reference_id = session.get('client_reference_id')
         plan_id = session['metadata'].get('plan_id')
-        
-        # Handle the subscription creation
-        subscription_id = session.get('subscription')  # Get the subscription ID from Stripe
+
+        # Get the subscription ID from Stripe session
+        subscription_id = session.get('subscription')
 
         try:
             user = User.objects.get(username=client_reference_id)
@@ -205,6 +206,17 @@ def stripe_webhook(request):
                 subscription.save()
 
             logger.info(f"Subscription created or updated for user {user.username}")
+
+            # Credit referrer if there is an associated referral
+            referral = Referral.objects.filter(referred_user=user).first()
+            if referral:
+                # Calculate earnings (40% of the payment amount)
+                amount_paid = session['amount_total'] / 100  # Stripe amounts are in cents
+                referral_earnings = 0.4 * amount_paid
+                referral.earnings += referral_earnings
+                referral.save()
+
+                logger.info(f"Referral earnings credited for referrer {referral.referrer.username}: ${referral_earnings}")
 
         except (User.DoesNotExist, Plan.DoesNotExist):
             logger.error("User or Plan does not exist")
