@@ -184,42 +184,50 @@ def stripe_webhook(request):
         # Get the subscription ID from Stripe session
         subscription_id = session.get('subscription')
 
-        try:
-            user = User.objects.get(username=client_reference_id)
-            plan = Plan.objects.get(id=plan_id)
+        # Retrieve the payment intent to check if the payment was successful
+        payment_intent_id = session.get('payment_intent')
+        payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
 
-            # Create or update the subscription
-            subscription, created = Subscription.objects.get_or_create(
-                user=user,
-                plan=plan,
-                defaults={
-                    'stripe_subscription_id': subscription_id if subscription_id else '',
-                    'start_date': timezone.now(),
-                    'end_date': timezone.now() + timedelta(days=plan.duration_in_months * 30),
-                    'status': 'active'
-                }
-            )
-            if not created:
-                subscription.status = 'active'
-                subscription.stripe_subscription_id = subscription_id if subscription_id else ''
-                subscription.end_date = timezone.now() + timedelta(days=plan.duration_in_months * 30)
-                subscription.save()
+        if payment_intent.status == 'succeeded':
+            try:
+                user = User.objects.get(username=client_reference_id)
+                plan = Plan.objects.get(id=plan_id)
 
-            logger.info(f"Subscription created or updated for user {user.username}")
+                # Create or update the subscription
+                subscription, created = Subscription.objects.get_or_create(
+                    user=user,
+                    plan=plan,
+                    defaults={
+                        'stripe_subscription_id': subscription_id if subscription_id else '',
+                        'start_date': timezone.now(),
+                        'end_date': timezone.now() + timedelta(days=plan.duration_in_months * 30),
+                        'status': 'active'
+                    }
+                )
+                if not created:
+                    subscription.status = 'active'
+                    subscription.stripe_subscription_id = subscription_id if subscription_id else ''
+                    subscription.end_date = timezone.now() + timedelta(days=plan.duration_in_months * 30)
+                    subscription.save()
 
-            # Credit referrer if there is an associated referral
-            referral = Referral.objects.filter(referred_user=user).first()
-            if referral:
-                # Calculate earnings (40% of the payment amount)
-                amount_paid = session['amount_total'] / 100  # Stripe amounts are in cents
-                referral_earnings = 0.4 * amount_paid
-                referral.earnings += referral_earnings
-                referral.save()
+                logger.info(f"Subscription created or updated for user {user.username}")
 
-                logger.info(f"Referral earnings credited for referrer {referral.referrer.username}: ${referral_earnings}")
+                # Credit referrer if there is an associated referral
+                referral = Referral.objects.filter(referred_user=user).first()
+                if referral:
+                    # Calculate earnings (40% of the payment amount)
+                    amount_paid = session['amount_total'] / 100  # Stripe amounts are in cents
+                    referral_earnings = 0.4 * amount_paid
+                    referral.earnings += referral_earnings
+                    referral.save()
 
-        except (User.DoesNotExist, Plan.DoesNotExist):
-            logger.error("User or Plan does not exist")
+                    logger.info(f"Referral earnings credited for referrer {referral.referrer.username}: ${referral_earnings}")
+
+            except (User.DoesNotExist, Plan.DoesNotExist):
+                logger.error("User or Plan does not exist")
+                return HttpResponse(status=400)
+        else:
+            logger.error(f"Payment failed with status: {payment_intent.status}")
             return HttpResponse(status=400)
 
     return HttpResponse(status=200)
