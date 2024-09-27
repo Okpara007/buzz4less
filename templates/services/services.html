@@ -48,8 +48,7 @@
                         <div class="bg-light p-5">
                             <img class="img-fluid mb-4" src="{{ service.image.url }}" style="height: 16rem; width:100%" alt="">
                             <h5 class="mb-3">{{ service.name }}</h5>
-                            <p>{{ service.pre_description }} <a href="https://www.google.com" style="color:#16d5ff; text-decoration:none;">Visit Google</a>
-                            </p>
+                            <p>{{ service.pre_description }}</p>
                             <a style="color: #16d5ff;" href="{% url 'service' service.id %}">More Info<i class="fa fa-arrow-right ms-2"></i></a>
                         </div>
                     </div>
