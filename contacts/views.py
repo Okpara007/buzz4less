@@ -39,10 +39,11 @@ def contact(request):
         connection = get_connection(
             backend='django.core.mail.backends.smtp.EmailBackend',
             host='mail.privateemail.com',  # Namecheap SMTP server
-            port=587,
+            port=465,
             username='support@buzzforless.com',
             password='3f(*W37uMjVaxJP',
-            use_tls=True,
+            use_tls=False,
+            use_ssl=True,
         )
 
         # Send the email using the custom connection
