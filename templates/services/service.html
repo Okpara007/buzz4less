@@ -120,6 +120,7 @@
             <h2 style="font-size: 2.5rem; font-weight:600" class="mb-3">{{ service.name }}</h2>
             <p>{{ service.main_description }} 
                 <br><br>
+                {% if service.name != "Apple Music" %}
                 <span style="font-weight: bold; color:black">NOTE:</span> 
                 <br>
                 1.⁠ ⁠When you purchase this product you will be provided with a key and instructions sent to your email address
@@ -131,7 +132,7 @@
                 ⁠4. If you already have an account with this streaming platform and want to pay for premium services at discounted rates, <a href="https://t.me/Buzz4less" style="color:#16d5ff; text-decoration:none;"> visit our telegram channel</a> to pay into your account..
                 <br><br>
                 ⁠5. If you canceled a subscription or made changes and still want to renew a previous plan, <a href="https://t.me/Buzz4less" style="color:#16d5ff; text-decoration:none;"> visit our telegram channel</a> to pay into your account.
-                
+                {% endif %}
             </p>
         </div>
 
