@@ -88,22 +88,6 @@ def signup(request):
             fail_silently=False,
         )
 
-        welcome_email_subject = 'WELCOME TO BUZZFORLESS!'
-        context = {
-            'username': username,
-        }
-        html_message = render_to_string('emails/welcome_email.html', context)
-        plain_message = strip_tags(html_message)  # Fallback for plain-text email clients
-
-        send_mail(
-            welcome_email_subject,
-            plain_message,
-            'welcome@buzzforless.com',
-            [email],
-            fail_silently=False,
-            html_message=html_message,
-        )
-
         return JsonResponse({'success': 'Account created successfully and logged in.'}, status=200)
 
     return render(request, 'accounts/login.html')
