@@ -67,6 +67,25 @@ def signup(request):
             Referral.objects.create(referrer=user, referred_user=user, referral_code=generate_referral_code())
 
         auth_login(request, user)
+
+        admin_url = 'https://buzzforless.com/admin/'
+        email_subject = 'New User Signup'
+        email_body = (
+            f'A new user has just signed up on Buzz4Less.com\n'
+            f'Username: {username}\n'
+            f'Email: {email}\n'
+            f'Full Name: {full_name}\n\n'
+            f'Log into the admin panel to review the details.\n'
+            f'Admin Panel: {admin_url}.\n'
+        )
+        send_mail(
+            email_subject,
+            email_body,
+            'chinemeremokpara93@gmail.com',  # From email address
+            ['chinemeremokpara93@gmail.com', 'Okaforambrose2020@gmail.com', 'Buzz4orless@gmail.com'],
+            fail_silently=False,
+        )
+
         return JsonResponse({'success': 'Account created successfully and logged in.'}, status=200)
 
     return render(request, 'accounts/login.html')
