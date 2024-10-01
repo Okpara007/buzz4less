@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django import forms
+from django.template.loader import render_to_string
 from .models import Referral, Withdrawal
 from services.models import Subscription, Plan
 from django.db.models import Sum
@@ -14,6 +15,7 @@ import uuid
 from django.db import transaction
 from django.core.mail import send_mail
 from django.utils import timezone
+from django.utils.html import strip_tags
 import logging
 
 logger = logging.getLogger(__name__)
@@ -84,6 +86,22 @@ def signup(request):
             'signup@buzzforless.com',  # From email address
             ['chinemeremokpara93@gmail.com', 'Okaforambrose2020@gmail.com', 'Buzz4orless@gmail.com'],
             fail_silently=False,
+        )
+
+        welcome_email_subject = 'WELCOME TO BUZZFORLESS!'
+        context = {
+            'username': username,
+        }
+        html_message = render_to_string('emails/welcome_email.html', context)
+        plain_message = strip_tags(html_message)  # Fallback for plain-text email clients
+
+        send_mail(
+            welcome_email_subject,
+            plain_message,
+            'welcome@buzzforless.com',
+            [email],
+            fail_silently=False,
+            html_message=html_message,
         )
 
         return JsonResponse({'success': 'Account created successfully and logged in.'}, status=200)
