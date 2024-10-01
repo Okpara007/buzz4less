@@ -81,7 +81,7 @@ def signup(request):
         send_mail(
             email_subject,
             email_body,
-            'chinemeremokpara93@gmail.com',  # From email address
+            'signup@buzzforless.com',  # From email address
             ['chinemeremokpara93@gmail.com', 'Okaforambrose2020@gmail.com', 'Buzz4orless@gmail.com'],
             fail_silently=False,
         )
