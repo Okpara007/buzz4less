@@ -3,42 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Buzz4less!</title>
+    <title>Welcome to Buzzforless</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f6f6;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .header {
+            text-align: center;
+        }
+        .header img {
+            width: 100px;
+            margin-bottom: 20px;
+        }
+        .content {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .content h1 {
+            color: #333;
+        }
+        .content p {
+            color: #666;
+            font-size: 16px;
+        }
+        .cta-button {
+            background-color: #ff7e00;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 20px;
+        }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
-    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
-        <tr>
-            <td align="center">
-                <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; margin-top: 20px; border-radius: 8px; overflow: hidden;">
-                    <tr>
-                        <!-- Banner Image -->
-                        <td align="center" style="padding: 20px;">
-                            <img src="{% static/icon-1.png %}" alt="Buzz4less Logo" width="100%" height="auto" style="display: block;">
-                        </td>
-                    </tr>
-                    <tr>
-                        <!-- Email Content -->
-                        <td style="padding: 20px;">
-                            <h1 style="font-size: 24px; color: #333333;">WELCOME TO BUZZFORLESS!</h1>
-                            <p style="font-size: 16px; color: #333333;">Hi {{ username }},</p>
-                            <p style="font-size: 16px; color: #333333;">
-                                Welcome to Buzzforless! We’re thrilled to have you as part of our growing community. 
-                                Here at Buzzforless, we strive to provide you with the best deals on Netflix, Spotify, YouTube, Amazon, and even VPN subscription plans, offering access at more affordable rates. Whether you’re here to explore our great streaming options or to learn more about our platform, we’re committed to making your experience seamless and enjoyable.
-                            </p>
-                            <p style="font-size: 16px; color: #333333;">Here’s what you can do next:</p>
-                            <ol style="font-size: 16px; color: #333333;">
-                                <li>Complete your profile: Help us get to know you better and personalize your experience.</li>
-                                <li>Explore our features: Check out our exclusive plans.</li>
-                                <li>Join the conversation: Stay updated by following us on social media and interacting with our community.</li>
-                            </ol>
-                            <p style="font-size: 16px; color: #333333;">Need help or have questions? We’re here for you! Reach out to us via the <a href="https://buzzforless.com/contact" style="color: #16d5ff; text-decoration: none;">Website</a> or via <a href="https://t.me/Buzz4less" style="color: #16d5ff; text-decoration: none;">Telegram</a>.</p>
-                            <p style="font-size: 16px; color: #333333;">Once again, thank you for joining Buzzforless! We’re excited to have you on board.</p>
-                            <p style="font-size: 16px; color: #333333;">Best regards,<br>The Buzzforless Team</p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <img src="https://yourdomain.com/logo.png" alt="Buzzforless Logo">
+        </div>
+        <div class="content">
+            <h1>Welcome to Buzzforless, {{ full_name }}!</h1>
+            <p>We’re thrilled to have you as part of our growing community.</p>
+            <p>At Buzzforless, we provide the best deals on streaming platforms and subscription services, offering you more value at affordable rates.</p>
+            <p>Whether you’re here to explore or manage your subscription plans, we're committed to making your experience smooth and enjoyable.</p>
+            <a href="{{ profile_link }}" class="cta-button">Complete Your Profile</a>
+        </div>
+        <div class="content">
+            <p>Stay connected and updated by following us on social media.</p>
+        </div>
+    </div>
 </body>
 </html>

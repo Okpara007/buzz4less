@@ -13,7 +13,7 @@ from services.models import Subscription, Plan
 from django.db.models import Sum
 import uuid
 from django.db import transaction
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.utils import timezone
 from django.utils.html import strip_tags
 import logging
@@ -70,6 +70,24 @@ def signup(request):
 
         auth_login(request, user)
 
+        # Prepare and send the welcome email
+        subject = 'Welcome to Buzzforless!'
+        from_email = 'welcome@buzzforless.com'
+        recipient_list = [email]
+
+        # Render the HTML email template
+        html_content = render_to_string('emails/welcome_email.html', {
+            'full_name': full_name,
+            'profile_link': 'https://buzzforless.com/profile',  # Replace with actual profile link
+        })
+        text_content = strip_tags(html_content)  # Fallback for plain-text email clients
+
+        # Create and send the email
+        msg = EmailMultiAlternatives(subject, text_content, from_email, recipient_list)
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+
+        # Send an admin notification email
         admin_url = 'https://buzzforless.com/admin/'
         email_subject = 'New User Signup'
         email_body = (
@@ -83,12 +101,12 @@ def signup(request):
         send_mail(
             email_subject,
             email_body,
-            'signup@buzzforless.com',  # From email address
+            'signup@buzzforless.com',
             ['chinemeremokpara93@gmail.com', 'Okaforambrose2020@gmail.com', 'Buzz4orless@gmail.com'],
             fail_silently=False,
         )
 
-        return JsonResponse({'success': 'Account created successfully and logged in.'}, status=200)
+        return JsonResponse({'success': 'Account created successfully and welcome email sent.'}, status=200)
 
     return render(request, 'accounts/login.html')
 
