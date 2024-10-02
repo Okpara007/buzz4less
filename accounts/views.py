@@ -78,7 +78,7 @@ def signup(request):
         # Render the HTML email template
         html_content = render_to_string('emails/welcome_email.html', {
             'full_name': full_name,
-            'profile_link': 'https://buzzforless.com/profile',  # Replace with actual profile link
+            'website_link': 'https://buzzforless.com/',  # Replace with actual profile link
         })
         text_content = strip_tags(html_content)  # Fallback for plain-text email clients
 
