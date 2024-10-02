@@ -37,7 +37,7 @@
             font-size: 16px;
         }
         .cta-button {
-            background-color: #ff7e00;
+            background-color: #16D5FF;
             color: white;
             padding: 10px 20px;
             border-radius: 5px;
@@ -51,17 +51,30 @@
 <body>
     <div class="email-container">
         <div class="header">
-            <img src="https://yourdomain.com/logo.png" alt="Buzzforless Logo">
+            <img src="{% static 'img/icon-1.png' %}" alt="Buzzforless Logo">
         </div>
         <div class="content">
-            <h1>Welcome to Buzzforless, {{ full_name }}!</h1>
-            <p>We’re thrilled to have you as part of our growing community.</p>
-            <p>At Buzzforless, we provide the best deals on streaming platforms and subscription services, offering you more value at affordable rates.</p>
-            <p>Whether you’re here to explore or manage your subscription plans, we're committed to making your experience smooth and enjoyable.</p>
-            <a href="{{ profile_link }}" class="cta-button">Complete Your Profile</a>
+            <h1>Hi {{ username }}!</h1>
+            <p>Welcome to Buzzforless! We’re thrilled to have you as part of our growing community.</p>
+            <p>Here at Buzzforless, we strive to provide you with the best deals on Netflix,Spotify,YouTube,Amazon and even VPN subscription plans, offering access at more affordable rates. Whether you’re here to explore our great streaming options or to learn more about our platform, we’re committed to making your experience seamless and enjoyable.
+
+            Here’s what you can do next:</p>
+            <br><br>
+            <ol>
+                <li>Complete your profile: Help us get to know you better and personalize your experience.</li>
+                <br><br>
+                <li>Explore our features: Check out our exclusive plans.</li>
+                <br><br>
+                <li>Join the conversation: Stay updated by following us on social media and interacting with our community.</li>
+                <br><br>
+            </ol>
+
+            <p>Need help or have questions? We’re here for you! Reach out to us via the <a href="https://www.buzzforless.com/contacts/contact">Website</a> or via <a href="https://t.me/Buzz4less">Telegram.</a></p>
+            <a href="https://www.buzzforless.com" class="cta-button">Visit Website</a>
         </div>
         <div class="content">
-            <p>Stay connected and updated by following us on social media.</p>
+            <p>Once again, thank you for joining Buzzforless! We’re excited to have you on board. <br>
+            Best regards,The Buzzforless Team.</p>
         </div>
     </div>
 </body>
