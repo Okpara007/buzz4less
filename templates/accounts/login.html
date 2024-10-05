@@ -517,10 +517,6 @@
                     <i class="fas fa-user" aria-hidden="true"></i>
                     <input type="text" name="full_name" placeholder="Full Name" aria-label="full_name" required>
                 </div>
-                <!-- <div class="input-field">
-                    <i class="fas fa-user" aria-hidden="true"></i>
-                    <input type="text" name="last_name" placeholder="Last Name" aria-label="last_name" required>
-                </div> -->
                 <div class="input-field">
                     <i class="fas fa-user" aria-hidden="true"></i>
                     <input type="text" name="username" placeholder="Username" aria-label="Username" required>
@@ -565,77 +561,89 @@
     </section>
 </main>
 
-<!-- Add this div to display error messages -->
+<!-- Add this div to display error or loading messages -->
 <div id="message-container" class="alert-container"></div>
 
 <script>
     // Switch between Sign In and Sign Up forms
-const sign_in_btn = document.querySelector("#sign-in-btn");
-const sign_up_btn = document.querySelector("#sign-up-btn");
-const container = document.querySelector(".container");
+    const sign_in_btn = document.querySelector("#sign-in-btn");
+    const sign_up_btn = document.querySelector("#sign-up-btn");
+    const container = document.querySelector(".container");
 
-sign_up_btn.addEventListener('click', () => {
-    container.classList.add("sign-up-mode");
-});
+    sign_up_btn.addEventListener('click', () => {
+        container.classList.add("sign-up-mode");
+    });
 
-sign_in_btn.addEventListener('click', () => {
-    container.classList.remove("sign-up-mode");
-});
+    sign_in_btn.addEventListener('click', () => {
+        container.classList.remove("sign-up-mode");
+    });
 
-// Function to handle AJAX form submissions
-function handleFormSubmit(formId, url) {
-    const form = document.getElementById(formId);
-    form.addEventListener('submit', function(e) {
-        e.preventDefault(); // Prevent form submission
+    // Function to handle AJAX form submissions with loading message
+    function handleFormSubmit(formId, url) {
+        const form = document.getElementById(formId);
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent form submission
 
-        const formData = new FormData(form);
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const formData = new FormData(form);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
+            // Display the loading message
             const messageContainer = document.getElementById('message-container');
             messageContainer.innerHTML = ''; // Clear previous messages
+            const loadingDiv = document.createElement('div');
+            loadingDiv.classList.add('alert-dismissible', 'fade-out');
+            loadingDiv.innerHTML = `
+                Loading, please wait...
+                <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>
+            `;
+            messageContainer.appendChild(loadingDiv);
 
-            if (data.error) {
-                // Display error message
-                const alertDiv = document.createElement('div');
-                alertDiv.classList.add('alert-dismissible', 'fade-out');
-                alertDiv.innerHTML = `
-                    ${data.error}
-                    <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>
-                `;
-                messageContainer.appendChild(alertDiv);
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                messageContainer.innerHTML = ''; // Clear previous messages
 
-                // Trigger fade-out effect after 3 seconds
-                setTimeout(() => {
-                    alertDiv.classList.add('hidden');
-                }, 3000);
+                if (data.error) {
+                    // Display error message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.classList.add('alert-dismissible', 'fade-out');
+                    alertDiv.innerHTML = `
+                        ${data.error}
+                        <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>
+                    `;
+                    messageContainer.appendChild(alertDiv);
 
-                // Remove the message from the DOM after fade-out
-                alertDiv.addEventListener('transitionend', () => {
-                    alertDiv.remove();
-                });
-            } else if (data.success) {
-                // Redirect to the dashboard on success
-                window.location.href = "/accounts/dashboard/";
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
-}
+                    // Trigger fade-out effect after 3 seconds
+                    setTimeout(() => {
+                        alertDiv.classList.add('hidden');
+                    }, 3000);
 
-// Handle the login and signup forms
-handleFormSubmit('login-form', "{% url 'login' %}");
-handleFormSubmit('signup-form', "{% url 'signup' %}");
+                    // Remove the message from the DOM after fade-out
+                    alertDiv.addEventListener('transitionend', () => {
+                        alertDiv.remove();
+                    });
+                } else if (data.success) {
+                    // Redirect to the dashboard on success
+                    window.location.href = "/accounts/dashboard/";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                messageContainer.innerHTML = 'An error occurred. Please try again later.';
+            });
+        });
+    }
 
+    // Handle the login and signup forms
+    handleFormSubmit('login-form', "{% url 'login' %}");
+    handleFormSubmit('signup-form', "{% url 'signup' %}");
 
 </script>
 {% endblock %}
