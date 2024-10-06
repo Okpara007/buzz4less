@@ -476,6 +476,29 @@
         color: #4d84e2;
     }    
 
+    /* Green Spinner CSS */
+    .spinner {
+        border: 4px solid #f3f3f3; /* Light grey for contrast */
+        border-top: 4px solid #ffffff; /* White spinner to contrast the green background */
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+        display: inline-block;
+        margin-left: 10px;
+        color: white; /* White text to match the green background */
+    }
+
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -590,6 +613,18 @@ function handleFormSubmit(formId, url) {
 
         const formData = new FormData(form);
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Display the loading message with green spinner
+        const messageContainer = document.getElementById('message-container');
+        messageContainer.innerHTML = ''; // Clear previous messages
+        const loadingDiv = document.createElement('div');
+        loadingDiv.classList.add('alert-dismissible', 'fade-out');
+        loadingDiv.innerHTML = `
+            <div class="spinner"></div> 
+            <span class="loading-text">Loading, please wait...</span>
+            <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>
+        `;
+        messageContainer.appendChild(loadingDiv);
 
         fetch(url, {
             method: 'POST',
