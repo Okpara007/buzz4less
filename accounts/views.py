@@ -72,7 +72,7 @@ def signup(request):
 
         # Prepare and send the welcome email
         subject = 'Welcome to Buzzforless!'
-        from_email = 'welcome@buzzforless.com'
+        from_email = 'BUZZFORLESS <welcome@buzzforless.com>'
         recipient_list = [email]
 
         # Render the HTML email template

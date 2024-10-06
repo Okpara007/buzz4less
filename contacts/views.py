@@ -38,7 +38,7 @@ def contact(request):
             email_subject,
             email_body,
             'support@buzzforless.com',
-            ['chinemeremokpara93@gmail.com', 'Okaforambrose2020@gmail.com'],
+            ['chinemeremokpara93@gmail.com', 'Okaforambrose2020@gmail.com', 'Help.buzzforless@gmail.com'],
             fail_silently=False
         )
 
