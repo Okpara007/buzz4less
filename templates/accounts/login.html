@@ -508,7 +508,7 @@
     .loading-text {
         display: inline-block;
         margin-left: 10px;
-        color: white; /* White text to match the green background */
+        color: #4CAF50; /* Green text */
     }
 
 </style>
@@ -630,7 +630,7 @@ function handleFormSubmit(formId, url) {
         const messageContainer = document.getElementById('message-container');
         messageContainer.innerHTML = ''; // Clear previous messages
         const loadingDiv = document.createElement('div');
-        loadingDiv.classList.add('alert-dismissible', 'fade-out');
+        loadingDiv.classList.add('alert-dismissible', 'loading-alert', 'fade-out');
         loadingDiv.innerHTML = `
             <div class="spinner"></div> 
             <span class="loading-text">Loading, please wait...</span>
