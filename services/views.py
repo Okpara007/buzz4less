@@ -104,7 +104,7 @@ def process_payment(request):
             # Handle referral logic (leave this here as it is not related to subscription creation)
             try:
                 referral = Referral.objects.get(referred_user=request.user)
-                earnings = plan.price * Decimal('0.4')  # Calculate 40% of the service price
+                earnings = plan.price * Decimal('0.3')  # Calculate 30% of the service price
                 referral.earnings += earnings
                 referral.save()
             except Referral.DoesNotExist:
