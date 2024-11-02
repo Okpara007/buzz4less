@@ -42,69 +42,61 @@ def service(request, service_id):
     }
     return render(request, 'services/service.html', context)
 
-@login_required(login_url='/accounts/login/')  # Redirect to the login page if not authenticated
+@login_required(login_url='/accounts/login/')
 def process_payment(request):
     if request.method == 'POST':
         plan_id = request.POST.get('plan_id')
-        service_id = request.POST.get('service_id')  # Get the service_id from the form
+        service_id = request.POST.get('service_id')
+        coupon_code = request.POST.get('coupon_code')  # Get coupon code from the form
 
-        if plan_id:  # Check if a plan is selected
-            plan = get_object_or_404(Plan, id=plan_id)  # Get the selected plan
+        if plan_id:
+            plan = get_object_or_404(Plan, id=plan_id)
+            price = plan.price
+
+            # Check for coupon code and validate it matches 'BUZZFORLESS50'
+            discounts = []
+            if coupon_code == "BUZZFORLESS50":
+                discounts = [{'coupon': 'BUZZFORLESS50'}]
 
             if plan.name == "Unlimited Account":
-                # One-time payment, no recurring details
                 payment_mode = 'payment'
                 price_data = {
                     'currency': 'usd',
-                    'product_data': {
-                        'name': plan.service.name,  # Use the plan's name for the product name
-                    },
-                    'unit_amount': int(plan.price * Decimal('100')),  # Convert to cents and ensure it's an integer
+                    'product_data': {'name': plan.service.name},
+                    'unit_amount': int(price * Decimal('100')),
                 }
             else:
-                # For all other plans, use subscription mode with recurring intervals
                 payment_mode = 'subscription'
-
-                if plan.duration_in_months == 1:
-                    interval = 'month'
-                elif plan.duration_in_months == 12:
-                    interval = 'year'
-                else:
-                    interval = 'month'  # Default to month, handle as needed
-
+                interval = 'year' if plan.duration_in_months == 12 else 'month'
                 price_data = {
                     'currency': 'usd',
-                    'product_data': {
-                        'name': plan.service.name,  # Use the plan's name for the product name
-                    },
+                    'product_data': {'name': plan.service.name},
                     'recurring': {
                         'interval': interval,
                         'interval_count': plan.duration_in_months if interval != 'year' else 1
                     },
-                    'unit_amount': int(plan.price * Decimal('100')),  # Convert to cents and ensure it's an integer
+                    'unit_amount': int(price * Decimal('100')),
                 }
 
-            # Create a new Stripe session for payment with the desired name
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=[{
                     'price_data': price_data,
                     'quantity': 1,
                 }],
-                mode=payment_mode,  # Set the payment mode based on the plan
+                mode=payment_mode,
                 success_url=request.build_absolute_uri('/services/payment/success/'),
                 cancel_url=request.build_absolute_uri(f'/services/{service_id}/'),
-                client_reference_id=request.user.username,  # Pass username as a reference
-                metadata={'plan_id': plan.id}  # Pass the plan ID in the metadata for later use
+                client_reference_id=request.user.username,
+                metadata={'plan_id': plan.id},
+                discounts=discounts  # Apply the discount
             )
 
-            # Save the service_id in the session in case the user cancels
             request.session['service_id'] = service_id
 
-            # Handle referral logic (leave this here as it is not related to subscription creation)
             try:
                 referral = Referral.objects.get(referred_user=request.user)
-                earnings = plan.price * Decimal('0.3')  # Calculate 30% of the service price
+                earnings = plan.price * Decimal('0.3')
                 referral.earnings += earnings
                 referral.save()
             except Referral.DoesNotExist:
@@ -113,6 +105,7 @@ def process_payment(request):
             return redirect(session.url, code=303)
 
     return redirect('service', service_id=request.POST.get('service_id'))
+
 
 def payment_success(request):
     return render(request, 'services/payment_success.html')
