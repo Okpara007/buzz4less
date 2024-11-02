@@ -22,7 +22,6 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 def index(request):
     services = Service.objects.order_by('-upload_date').filter(is_published=True)
-
     paginator = Paginator(services, 6)
     page = request.GET.get('page')
     paged_services = paginator.get_page(page)
@@ -53,11 +52,22 @@ def process_payment(request):
             plan = get_object_or_404(Plan, id=plan_id)
             price = plan.price
 
-            # Check for coupon code and validate it matches 'BUZZFORLESS50'
+            # Check for coupon code and validate it on Stripe
             discounts = []
-            if coupon_code == "BUZZFORLESS50":
-                discounts = [{'coupon': 'BUZZFORLESS50'}]
+            if coupon_code:
+                try:
+                    # Attempt to retrieve the coupon from Stripe
+                    stripe_coupon = stripe.Coupon.retrieve(coupon_code)
+                    if stripe_coupon.valid and coupon_code == "BUZZFORLESS50":
+                        discounts = [{'coupon': coupon_code}]
+                    else:
+                        messages.error(request, 'Invalid or expired coupon code.')
+                        return redirect('service', service_id=service_id)
+                except stripe.error.InvalidRequestError:
+                    messages.error(request, 'Invalid or expired coupon code.')
+                    return redirect('service', service_id=service_id)
 
+            # Define the price data for the selected plan
             if plan.name == "Unlimited Account":
                 payment_mode = 'payment'
                 price_data = {
@@ -78,19 +88,24 @@ def process_payment(request):
                     'unit_amount': int(price * Decimal('100')),
                 }
 
-            session = stripe.checkout.Session.create(
-                payment_method_types=['card'],
-                line_items=[{
-                    'price_data': price_data,
-                    'quantity': 1,
-                }],
-                mode=payment_mode,
-                success_url=request.build_absolute_uri('/services/payment/success/'),
-                cancel_url=request.build_absolute_uri(f'/services/{service_id}/'),
-                client_reference_id=request.user.username,
-                metadata={'plan_id': plan.id},
-                discounts=discounts  # Apply the discount
-            )
+            try:
+                session = stripe.checkout.Session.create(
+                    payment_method_types=['card'],
+                    line_items=[{
+                        'price_data': price_data,
+                        'quantity': 1,
+                    }],
+                    mode=payment_mode,
+                    success_url=request.build_absolute_uri('/services/payment/success/'),
+                    cancel_url=request.build_absolute_uri(f'/services/{service_id}/'),
+                    client_reference_id=request.user.username,
+                    metadata={'plan_id': plan.id},
+                    discounts=discounts  # Apply the discount
+                )
+            except stripe.error.StripeError as e:
+                logger.error(f"Stripe error: {e}")
+                messages.error(request, 'An error occurred while processing payment. Please try again.')
+                return redirect('service', service_id=service_id)
 
             request.session['service_id'] = service_id
 
@@ -105,7 +120,6 @@ def process_payment(request):
             return redirect(session.url, code=303)
 
     return redirect('service', service_id=request.POST.get('service_id'))
-
 
 def payment_success(request):
     return render(request, 'services/payment_success.html')
@@ -126,26 +140,21 @@ def cancel_subscription(request, subscription_id):
         try:
             stripe.Subscription.delete(subscription.stripe_subscription_id)
         except stripe.error.InvalidRequestError as e:
-            # Handle case where the subscription does not exist on Stripe
             logger.error(f"Stripe error: {e}")
             messages.error(request, 'Unable to cancel the subscription. It may have already been canceled or does not exist. Try again later, or if issue persists contact customer care')
             return redirect('dashboard')
 
-        # Update the subscription status in the database to 'canceled'
         subscription.status = 'canceled'
-        subscription.end_date = timezone.now()  # Set the end date to the current time
+        subscription.end_date = timezone.now()
         subscription.save()
 
-        # Render the payment_cancel.html template with the correct service_id context
-        return render(request, 'services/payment_cancel.html', {'service_id': subscription.plan.service.id})  # Access service_id via plan.service.id
+        return render(request, 'services/payment_cancel.html', {'service_id': subscription.plan.service.id})
 
     except Subscription.DoesNotExist:
-        # Handle case where no active subscription is found
         messages.error(request, 'Subscription not found or already canceled.')
         return redirect('dashboard')
 
     except Exception as e:
-        # Handle any other exceptions that may occur
         logger.error(f"Unexpected error: {e}")
         messages.error(request, 'An unexpected error occurred while canceling your subscription. Please try again later.')
         return redirect('dashboard')
@@ -168,16 +177,11 @@ def stripe_webhook(request):
         logger.error("Invalid signature")
         return HttpResponse(status=400)
 
-    # Handle the 'checkout.session.completed' event from Stripe
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         client_reference_id = session.get('client_reference_id')
         plan_id = session['metadata'].get('plan_id')
-
-        # Get the subscription ID from Stripe session
         subscription_id = session.get('subscription')
-
-        # Retrieve the payment intent to check if the payment was successful
         payment_intent_id = session.get('payment_intent')
         payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
 
@@ -185,8 +189,6 @@ def stripe_webhook(request):
             try:
                 user = User.objects.get(username=client_reference_id)
                 plan = Plan.objects.get(id=plan_id)
-
-                # Create or update the subscription
                 subscription, created = Subscription.objects.get_or_create(
                     user=user,
                     plan=plan,
@@ -203,29 +205,16 @@ def stripe_webhook(request):
                     subscription.end_date = timezone.now() + timedelta(days=plan.duration_in_months * 30)
                     subscription.save()
 
-                logger.info(f"Subscription created or updated for user {user.username}")
-
-                # Credit referrer if there is an associated referral
                 referral = Referral.objects.filter(referred_user=user).first()
                 if referral:
-                    # Calculate earnings (40% of the payment amount)
-                    amount_paid = session['amount_total'] / 100  # Stripe amounts are in cents
+                    amount_paid = session['amount_total'] / 100
                     referral_earnings = 0.4 * amount_paid
                     referral.earnings += referral_earnings
                     referral.save()
 
-                    logger.info(f"Referral earnings credited for referrer {referral.referrer.username}: ${referral_earnings}")
-
             except (User.DoesNotExist, Plan.DoesNotExist):
-                logger.error("User or Plan does not exist")
                 return HttpResponse(status=400)
         else:
-            logger.error(f"Payment failed with status: {payment_intent.status}")
             return HttpResponse(status=400)
 
     return HttpResponse(status=200)
-
-
-
-
-
