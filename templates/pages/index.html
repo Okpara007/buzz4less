@@ -6,52 +6,53 @@
 <style>
     .testimonial-section {
         text-align: center;
-        width: 90%;
-      }
-  
-      .testimonial-title {
+        width: 100%;
+    }
+
+    .testimonial-title {
         margin-bottom: 20px;
         font-size: 1.8rem;
-        color: #fff;
-      }
-  
-      .swiper {
+        color: black;
+    }
+
+    .swiper {
         width: 100%;
         padding: 20px 0;
-      }
-  
-      .swiper-slide {
+    }
+
+    .swiper-slide {
         background: #F2F8FE;
         border-radius: 10px;
         padding: 20px;
-  
         display: flex;
         flex-direction: column;
         justify-content: flex-start; /* Align content to the top */
         align-items: flex-start; /* Align all card content to the left */
-        height: 130px; /* Fixed height for all cards */
+        height: 150px; /* Fixed height for all cards */
         overflow: hidden; /* Ensures content doesn't overflow */
-      }
-  
-      .swiper-slide h3 {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for cards */
+    }
+
+    .swiper-slide h3 {
         margin: 0 0 10px;
-        font-size: 1.5rem;
-        color: #dbeafe;
+        font-size: 1.2rem;
+        color: #000;
         text-align: left;
         width: 100%;
-      }
-  
-      .swiper-slide p {
+    }
+
+    .swiper-slide p {
         font-size: 1rem;
-        color: #94a3b8;
+        color: #666;
         text-align: left;
         width: 100%;
-      }
-  
-      .swiper-pagination {
+        line-height: 1.5;
+    }
+
+    .swiper-pagination {
         margin-top: 20px;
         text-align: center;
-      }
+    }
 </style>
 
 <div class="container-fluid hero-header bg-light py-5 mb-5">
@@ -198,39 +199,64 @@
 </div>
 <!-- Service End -->
 
-<!-- Features Start -->
+<!-- Testimonials Start -->
 <div class="container-xxl py-5">
     <div class="container">
         <div class="text-center mx-auto wow fadeInUp" data-wow-delay="0.1s" style="max-width: 500px;">
             <h1 class="display-6 mb-4">What People Say</h1>
-            <p style="color: #16d5ff;" class="fs-5 mb-5">Find out what people say about us </p>
+            <p style="color: #16d5ff;" class="fs-5 mb-5">Find out what people say about us</p>
         </div>
         <div class="row g-5">
             <div class="testimonial-section">
-                <h2 class="testimonial-title" style="color: black;">What People Say</h2>
                 <div class="swiper">
-                  <div class="swiper-wrapper">
-                    <div class="swiper-slide">
-                      <h3 style="color: black;">Sarah Johnson</h3>
-                      <p style="color: #999;">Since integrating this solution into our workflow, we've experienced a significant improvement in efficiency and collaboration.</p>
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <h3>Sarah Johnson</h3>
+                            <p>Since integrating this solution into our workflow, we've experienced a significant improvement in efficiency and collaboration.</p>
+                        </div>
+                        <div class="swiper-slide">
+                            <h3>David Patel</h3>
+                            <p>I've tested numerous options in this category, but one stands out for its intuitive design and comprehensive functionality.</p>
+                        </div>
+                        <div class="swiper-slide">
+                            <h3>Emily Carter</h3>
+                            <p>The tool we've adopted has surpassed our expectations, providing invaluable insights and support as our business continues to grow.</p>
+                        </div>
+                        <div class="swiper-slide">
+                            <h3>John Doe</h3>
+                            <p>This solution transformed the way we handle tasks, making our team more productive and focused.</p>
+                        </div>
                     </div>
-                    <div class="swiper-slide">
-                      <h3 style="color: black;">David Patel</h3>
-                      <p style="color: #999;">I've tested numerous options in this category, but one stands out for its intuitive design and comprehensive functionality.</p>
-                    </div>
-                    <div class="swiper-slide">
-                      <h3 style="color: black;">Emily Carter</h3>
-                      <p style="color: #999;">The tool we've adopted has surpassed our expectations, providing invaluable insights and support as our business continues to grow.</p>
-                    </div>
-                    <div class="swiper-slide">
-                      <h3 style="color: black;">John Doe</h3>
-                      <p style="color: #999;">This solution transformed the way we handle tasks, making our team more productive and focused.</p>
-                    </div>
-                  </div>
+                    <!-- Add Pagination -->
+                    <div class="swiper-pagination"></div>
                 </div>
-              </div></div>
+            </div>
         </div>
     </div>
 </div>
-<!-- Features End -->
+<!-- Testimonials End -->
+
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+<script>
+    const swiper = new Swiper('.swiper', {
+        slidesPerView: 3, /* Show 3 slides at once */
+        spaceBetween: 20, /* Spacing between slides */
+        loop: true, /* Enable looping */
+        autoplay: {
+            delay: 5000, /* Auto slide delay */
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true, /* Enable pagination clicks */
+        },
+        breakpoints: {
+            768: {
+                slidesPerView: 2, /* Show 2 slides on tablets */
+            },
+            576: {
+                slidesPerView: 1, /* Show 1 slide on small screens */
+            },
+        },
+    });
+</script>
 {% endblock %}
