@@ -238,25 +238,27 @@
 
 <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 <script>
-    const swiper = new Swiper('.swiper', {
-        slidesPerView: 3, /* Show 3 slides at once */
-        spaceBetween: 20, /* Spacing between slides */
-        loop: true, /* Enable looping */
-        autoplay: {
-            delay: 5000, /* Auto slide delay */
-        },
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true, /* Enable pagination clicks */
-        },
-        breakpoints: {
-            768: {
-                slidesPerView: 2, /* Show 2 slides on tablets */
+    document.addEventListener("DOMContentLoaded", function () {
+        const swiper = new Swiper('.swiper', {
+            slidesPerView: 3, // Show 3 slides at a time
+            spaceBetween: 20, // Space between slides
+            loop: true, // Enable looping
+            autoplay: {
+                delay: 5000, // Auto-slide delay
             },
-            576: {
-                slidesPerView: 1, /* Show 1 slide on small screens */
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true, // Enable pagination
             },
-        },
+            breakpoints: {
+                768: {
+                    slidesPerView: 2, // Adjust for tablets
+                },
+                576: {
+                    slidesPerView: 1, // Adjust for mobile
+                },
+            },
+        });
     });
 </script>
 {% endblock %}
