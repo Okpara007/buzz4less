@@ -26,11 +26,11 @@
         padding: 20px;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start; /* Align content to the top */
-        align-items: flex-start; /* Align all card content to the left */
-        height: 150px; /* Fixed height for all cards */
-        overflow: hidden; /* Ensures content doesn't overflow */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for cards */
+        justify-content: flex-start;
+        align-items: flex-start;
+        height: 150px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .swiper-slide h3 {
@@ -206,20 +206,20 @@
                 <div class="swiper">
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
-                            <h3>Sarah Johnson</h3>
-                            <p>Since integrating this solution into our workflow, we've experienced a significant improvement in efficiency and collaboration.</p>
+                            <h3>Alex Morgan</h3>
+                            <p>I got Netflix for half the price! Buzzforless is incredible.</p>
                         </div>
                         <div class="swiper-slide">
-                            <h3>David Patel</h3>
-                            <p>I've tested numerous options in this category, but one stands out for its intuitive design and comprehensive functionality.</p>
+                            <h3>Samantha Lee</h3>
+                            <p>YouTube Premium without the crazy cost—Buzzforless made it happen.</p>
+                        </div>
+                        <div class="swiper-slide">
+                            <h3>Chris Daniels</h3>
+                            <p>Prime Video and Netflix for less than I ever thought possible. Highly recommend Buzzforless!</p>
                         </div>
                         <div class="swiper-slide">
                             <h3>Emily Carter</h3>
-                            <p>The tool we've adopted has surpassed our expectations, providing invaluable insights and support as our business continues to grow.</p>
-                        </div>
-                        <div class="swiper-slide">
-                            <h3>John Doe</h3>
-                            <p>This solution transformed the way we handle tasks, making our team more productive and focused.</p>
+                            <p>Buzzforless gave me access to Netflix, Spotify, and Prime Video all in one place at a fraction of the cost.</p>
                         </div>
                     </div>
                 </div>
@@ -233,7 +233,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const swiper = new Swiper('.swiper', {
-            slidesPerView: 3, // Show 3 slides at a time
+            slidesPerView: 3, // Default number of slides
             spaceBetween: 20, // Space between slides
             loop: true, // Enable looping
             autoplay: {
@@ -241,14 +241,17 @@
             },
             pagination: {
                 el: '.swiper-pagination',
-                clickable: true, // Enable pagination
+                clickable: true, // Enable pagination clicks
             },
             breakpoints: {
+                992: {
+                    slidesPerView: 3, // 3 slides for larger devices
+                },
                 768: {
-                    slidesPerView: 2, // Adjust for tablets
+                    slidesPerView: 2, // 2 slides for tablets
                 },
                 576: {
-                    slidesPerView: 1, // Adjust for mobile
+                    slidesPerView: 1, // 1 slide for small screens
                 },
             },
         });
