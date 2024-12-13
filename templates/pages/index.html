@@ -30,7 +30,6 @@
         align-items: flex-start;
         height: 150px;
         overflow: hidden;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .swiper-slide h3 {
@@ -201,7 +200,7 @@
             <h1 class="display-6 mb-4">What People Say</h1>
             <p style="color: #16d5ff;" class="fs-5 mb-5">Find out what people say about us</p>
         </div>
-        <div class="row g-5">
+        <div class="row g-5 ">
             <div class="testimonial-section">
                 <div class="swiper">
                     <div class="swiper-wrapper">
@@ -233,25 +232,30 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const swiper = new Swiper('.swiper', {
-            slidesPerView: 3, // Default number of slides
+            slidesPerView: 3, // Default: 3 slides
             spaceBetween: 20, // Space between slides
             loop: true, // Enable looping
             autoplay: {
                 delay: 5000, // Auto-slide delay
+                disableOnInteraction: false, // Keep autoplay active
             },
             pagination: {
                 el: '.swiper-pagination',
                 clickable: true, // Enable pagination clicks
             },
             breakpoints: {
+                // Breakpoints for responsive behavior
                 992: {
-                    slidesPerView: 3, // 3 slides for larger devices
+                    slidesPerView: 3, // 3 slides for large screens
                 },
                 768: {
                     slidesPerView: 2, // 2 slides for tablets
                 },
                 576: {
                     slidesPerView: 1, // 1 slide for small screens
+                },
+                414: {
+                    slidesPerView: 1, // Specific breakpoint for iPhone XR size
                 },
             },
         });
