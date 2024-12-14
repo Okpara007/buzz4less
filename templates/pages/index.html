@@ -28,7 +28,7 @@
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
-        height: 150px;
+        height: 190px;
         overflow: hidden;
     }
 
@@ -47,6 +47,14 @@
         width: 100%;
         line-height: 1.5;
     }
+
+    .testimonial-img {
+        width: 50px; /* Adjust the size */
+        height: 50px; /* Adjust the size */
+        border-radius: 50%; /* Makes the image circular */
+        margin-bottom: 10px; /* Adds spacing between the image and text */
+        object-fit: cover; /* Ensures the image fits well */
+    }    
 </style>
 
 <div class="container-fluid hero-header bg-light py-5 mb-5">
@@ -205,20 +213,55 @@
                 <div class="swiper">
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
+                            <img src="{% static 'img/Erklärvideo erstellen lassen.jpg' %}" alt="User Image" class="testimonial-img">
                             <h3>Alex Morgan</h3>
                             <p>I got Netflix for half the price! Buzzforless is incredible.</p>
                         </div>
                         <div class="swiper-slide">
+                            <img src="{% static 'img/payment-1.png' %}" alt="User Image" class="testimonial-img">
                             <h3>Samantha Lee</h3>
                             <p>YouTube Premium without the crazy cost—Buzzforless made it happen.</p>
                         </div>
                         <div class="swiper-slide">
+                            <img src="{% static 'img/payment-2.png' %}" alt="User Image" class="testimonial-img">
                             <h3>Chris Daniels</h3>
                             <p>Prime Video and Netflix for less than I ever thought possible. Highly recommend Buzzforless!</p>
                         </div>
                         <div class="swiper-slide">
+                            <img src="{% static 'img/payment-4.png' %}" alt="User Image" class="testimonial-img">
                             <h3>Emily Carter</h3>
                             <p>Buzzforless gave me access to Netflix, Spotify, and Prime Video all in one place at a fraction of the cost.</p>
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="{% static 'img/Erklärvideo erstellen lassen.jpg' %}" alt="User Image" class="testimonial-img">
+                            <h3>James O’Neill</h3>
+                            <p>Listening to music on Tidal and watching Netflix has never been more affordable. Thank you, Buzzforless!</p>
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="{% static 'img/Erklärvideo erstellen lassen.jpg' %}" alt="User Image" class="testimonial-img">
+                            <h3>Patricia Gomez</h3>
+                            <p>Finally, I can enjoy YouTube Premium without those annoying ads, and it’s so cheap!</p>
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="{% static 'img/Erklärvideo erstellen lassen.jpg' %}" alt="User Image" class="testimonial-img">
+                            <h3>Ryan Brooks</h3>
+                            <p>Prime Video, Spotify, and even Tidal—Buzzforless is the real deal!</p>
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="{% static 'img/Erklärvideo erstellen lassen.jpg' %}" alt="User Image" class="testimonial-img">
+                            <h3>Sophia Adams</h3>
+                            <p>Netflix and YouTube Premium for less than I pay for coffee. Buzzforless is amazing!</p>
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="{% static 'img/Erklärvideo erstellen lassen.jpg' %}" alt="User Image" class="testimonial-img">
+                            <h3>Olivia Martinez</h3>
+                            <p>I got my whole family on Prime Video and Netflix with Buzzforless. Great service!</p>
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="{% static 'img/Erklärvideo erstellen lassen.jpg' %}" alt="User Image" class="testimonial-img">
+                            <h3>Michael Rivera</h3>
+                            <p>Buzzforless made Tidal affordable, and now I enjoy my high-quality music without stress!”
+                                – Grace Johnson</p>
                         </div>
                     </div>
                 </div>
@@ -246,7 +289,7 @@
             breakpoints: {
                 // Breakpoints for responsive behavior
                 992: {
-                    slidesPerView: 3, // 3 slides for large screens
+                    slidesPerView: 2, // 3 slides for large screens
                 },
                 768: {
                     slidesPerView: 2, // 2 slides for tablets
